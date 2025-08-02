@@ -332,9 +332,9 @@ export default function BookingsPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Events</SelectItem>
-                {sampleEvents.map(event => (
-                  <SelectItem key={event.id} value={event.id}>{event.name}</SelectItem>
-                ))}
+                                 {sampleEvents.map(event => (
+                   <SelectItem key={event.$id} value={event.$id}>{event.name}</SelectItem>
+                 ))}
               </SelectContent>
             </Select>
             <Select value={selectedStatus} onValueChange={setSelectedStatus}>
@@ -379,24 +379,24 @@ export default function BookingsPage() {
               <div key={booking.$id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
                 <div className="flex items-center space-x-4">
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <p className="font-medium">{booking.attendee_name}</p>
-                      <Badge className={getStatusColor(booking.status)}>
-                        {booking.status}
-                      </Badge>
-                      <Badge className={getPaymentStatusColor(booking.payment_status)}>
-                        {booking.payment_status}
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground">{getEventName(booking.event_id)}</p>
-                    <p className="text-sm text-muted-foreground">{booking.attendee_email}</p>
+                                         <div className="flex items-center gap-2 mb-1">
+                       <p className="font-medium">{booking.customer_name}</p>
+                       <Badge className={getStatusColor(booking.booking_status)}>
+                         {booking.booking_status}
+                       </Badge>
+                       <Badge className={getPaymentStatusColor(booking.payment_status)}>
+                         {booking.payment_status}
+                       </Badge>
+                     </div>
+                     <p className="text-sm text-muted-foreground">{booking.event_name}</p>
+                     <p className="text-sm text-muted-foreground">{booking.customer_email}</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-4">
-                  <div className="text-right">
-                    <p className="font-medium">{formatPrice(booking.payment_amount)}</p>
-                    <p className="text-sm text-muted-foreground">{formatDate(booking.created_at || '')}</p>
-                  </div>
+                                     <div className="text-right">
+                     <p className="font-medium">{formatPrice(booking.amount)}</p>
+                     <p className="text-sm text-muted-foreground">{formatDate(booking.created_at || '')}</p>
+                   </div>
                   <div className="flex gap-1">
                     <Button 
                       variant="ghost" 
@@ -439,82 +439,90 @@ export default function BookingsPage() {
               </div>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Attendee Information */}
-              <div>
-                <h3 className="font-semibold mb-3">Attendee Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-sm text-muted-foreground">Name</Label>
-                    <p className="font-medium">{selectedBooking.attendee_name}</p>
-                  </div>
-                  <div>
-                    <Label className="text-sm text-muted-foreground">Email</Label>
-                    <p className="font-medium">{selectedBooking.attendee_email}</p>
-                  </div>
-                  <div>
-                    <Label className="text-sm text-muted-foreground">Phone</Label>
-                    <p className="font-medium">{selectedBooking.attendee_phone}</p>
-                  </div>
-                  <div>
-                    <Label className="text-sm text-muted-foreground">Age</Label>
-                    <p className="font-medium">{selectedBooking.attendee_age} years</p>
-                  </div>
-                  <div>
-                    <Label className="text-sm text-muted-foreground">Gender</Label>
-                    <p className="font-medium capitalize">{selectedBooking.attendee_gender}</p>
-                  </div>
-                  <div className="md:col-span-2">
-                    <Label className="text-sm text-muted-foreground">Address</Label>
-                    <p className="font-medium">{selectedBooking.attendee_address}</p>
-                  </div>
-                </div>
-              </div>
+                             {/* Customer Information */}
+               <div>
+                 <h3 className="font-semibold mb-3">Customer Information</h3>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                   <div>
+                     <Label className="text-sm text-muted-foreground">Name</Label>
+                     <p className="font-medium">{selectedBooking.customer_name}</p>
+                   </div>
+                   <div>
+                     <Label className="text-sm text-muted-foreground">Email</Label>
+                     <p className="font-medium">{selectedBooking.customer_email}</p>
+                   </div>
+                   <div>
+                     <Label className="text-sm text-muted-foreground">Event</Label>
+                     <p className="font-medium">{selectedBooking.event_name}</p>
+                   </div>
+                   <div>
+                     <Label className="text-sm text-muted-foreground">Event Date</Label>
+                     <p className="font-medium">{formatDate(selectedBooking.event_date)}</p>
+                   </div>
+                   <div>
+                     <Label className="text-sm text-muted-foreground">Location</Label>
+                     <p className="font-medium">{selectedBooking.event_location}</p>
+                   </div>
+                   <div>
+                     <Label className="text-sm text-muted-foreground">Ticket Type</Label>
+                     <p className="font-medium">{selectedBooking.ticket_type}</p>
+                   </div>
+                 </div>
+               </div>
 
-              {/* Event Information */}
-              <div>
-                <h3 className="font-semibold mb-3">Event Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-sm text-muted-foreground">Event</Label>
-                    <p className="font-medium">{getEventName(selectedBooking.event_id)}</p>
-                  </div>
-                  <div>
-                    <Label className="text-sm text-muted-foreground">Booking ID</Label>
-                    <p className="font-medium">{selectedBooking.$id}</p>
-                  </div>
-                  <div>
-                    <Label className="text-sm text-muted-foreground">QR Code</Label>
-                    <p className="font-medium font-mono">{selectedBooking.qr_code}</p>
-                  </div>
-                  <div>
-                    <Label className="text-sm text-muted-foreground">Created</Label>
-                    <p className="font-medium">{formatDate(selectedBooking.created_at || '')}</p>
-                  </div>
-                </div>
-              </div>
+                             {/* Booking Information */}
+               <div>
+                 <h3 className="font-semibold mb-3">Booking Information</h3>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                   <div>
+                     <Label className="text-sm text-muted-foreground">Booking ID</Label>
+                     <p className="font-medium">{selectedBooking.$id}</p>
+                   </div>
+                   <div>
+                     <Label className="text-sm text-muted-foreground">Transaction ID</Label>
+                     <p className="font-medium font-mono">{selectedBooking.transaction_id}</p>
+                   </div>
+                   <div>
+                     <Label className="text-sm text-muted-foreground">Booking Date</Label>
+                     <p className="font-medium">{formatDate(selectedBooking.booking_date)}</p>
+                   </div>
+                   <div>
+                     <Label className="text-sm text-muted-foreground">Created</Label>
+                     <p className="font-medium">{formatDate(selectedBooking.created_at || '')}</p>
+                   </div>
+                 </div>
+               </div>
 
-              {/* Payment Information */}
-              <div>
-                <h3 className="font-semibold mb-3">Payment Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-sm text-muted-foreground">Amount</Label>
-                    <p className="font-medium text-lg">{formatPrice(selectedBooking.payment_amount)}</p>
-                  </div>
-                  <div>
-                    <Label className="text-sm text-muted-foreground">Payment Status</Label>
-                    <Badge className={getPaymentStatusColor(selectedBooking.payment_status)}>
-                      {selectedBooking.payment_status}
-                    </Badge>
-                  </div>
-                  <div>
-                    <Label className="text-sm text-muted-foreground">Booking Status</Label>
-                    <Badge className={getStatusColor(selectedBooking.status)}>
-                      {selectedBooking.status}
-                    </Badge>
-                  </div>
-                </div>
-              </div>
+                             {/* Payment Information */}
+               <div>
+                 <h3 className="font-semibold mb-3">Payment Information</h3>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                   <div>
+                     <Label className="text-sm text-muted-foreground">Amount</Label>
+                     <p className="font-medium text-lg">{formatPrice(selectedBooking.amount)}</p>
+                   </div>
+                   <div>
+                     <Label className="text-sm text-muted-foreground">Currency</Label>
+                     <p className="font-medium">{selectedBooking.currency}</p>
+                   </div>
+                   <div>
+                     <Label className="text-sm text-muted-foreground">Payment Method</Label>
+                     <p className="font-medium">{selectedBooking.payment_method}</p>
+                   </div>
+                   <div>
+                     <Label className="text-sm text-muted-foreground">Payment Status</Label>
+                     <Badge className={getPaymentStatusColor(selectedBooking.payment_status)}>
+                       {selectedBooking.payment_status}
+                     </Badge>
+                   </div>
+                   <div>
+                     <Label className="text-sm text-muted-foreground">Booking Status</Label>
+                     <Badge className={getStatusColor(selectedBooking.booking_status)}>
+                       {selectedBooking.booking_status}
+                     </Badge>
+                   </div>
+                 </div>
+               </div>
 
               {/* Actions */}
               <div className="flex justify-end gap-2 pt-4 border-t">

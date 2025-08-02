@@ -28,16 +28,24 @@ import { formatPrice, formatDate, formatTime } from '@/lib/utils'
 
 interface UserBooking {
   $id: string;
+  user_id: string;
   event_id: string;
   event_name: string;
   event_date: string;
-  event_time: string;
-  event_venue: string;
-  attendee_name: string;
-  payment_status: string;
-  payment_amount: number;
-  status: string;
+  event_location: string;
+  ticket_type: string;
+  quantity: number;
+  amount: number;
+  currency: string;
+  payment_method: string;
+  payment_status: 'pending' | 'completed' | 'failed' | 'refunded';
+  transaction_id: string;
+  booking_status: 'confirmed' | 'cancelled' | 'pending';
+  customer_name: string;
+  customer_email: string;
+  booking_date: string;
   created_at?: string;
+  updated_at?: string;
 }
 
 export default function DashboardPage() {
@@ -68,30 +76,19 @@ export default function DashboardPage() {
       // Load user's bookings
       const userBookings = await bookingsApi.getByUser(user?.$id || '')
       
-      // Get event details for each booking
-      const bookingsWithEvents = await Promise.all(
-        userBookings.map(async (booking) => {
-          const event = await eventsApi.getById(booking.event_id)
-          return {
-            ...booking,
-            event_name: event?.name || 'Unknown Event',
-            event_date: event?.date || '',
-            event_time: event?.time || '',
-            event_venue: event?.venue || ''
-          }
-        })
-      )
+      // The bookings already have event details, no need to fetch separately
+      const bookingsWithEvents = userBookings
 
       setBookings(bookingsWithEvents)
 
       // Calculate stats
       const totalBookings = bookingsWithEvents.length
       const upcomingBookings = bookingsWithEvents.filter(b => 
-        new Date(b.event_date) > new Date() && b.status === 'confirmed'
+        new Date(b.event_date) > new Date() && b.booking_status === 'confirmed'
       ).length
       const totalSpent = bookingsWithEvents
         .filter(b => b.payment_status === 'completed')
-        .reduce((sum, b) => sum + b.payment_amount, 0)
+        .reduce((sum, b) => sum + b.amount, 0)
       const completedBookings = bookingsWithEvents.filter(b => 
         new Date(b.event_date) < new Date()
       ).length
@@ -277,19 +274,19 @@ export default function DashboardPage() {
                                 {formatDate(booking.event_date)}
                               </div>
                               <div className="flex items-center">
-                                <Clock className="h-4 w-4 mr-1" />
-                                {formatTime(booking.event_time)}
+                                <MapPin className="h-4 w-4 mr-1" />
+                                {booking.event_location}
                               </div>
                               <div className="flex items-center">
-                                <MapPin className="h-4 w-4 mr-1" />
-                                {booking.event_venue}
+                                <Ticket className="h-4 w-4 mr-1" />
+                                {booking.ticket_type}
                               </div>
                             </div>
                             <div className="flex items-center space-x-4 mt-2">
-                              {getStatusBadge(booking.status)}
+                              {getStatusBadge(booking.booking_status)}
                               {getPaymentStatusBadge(booking.payment_status)}
                               <span className="text-sm font-medium">
-                                {formatPrice(booking.payment_amount)}
+                                {formatPrice(booking.amount)}
                               </span>
                             </div>
                           </div>
