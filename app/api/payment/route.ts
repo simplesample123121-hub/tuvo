@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
         <title>Redirecting to Payment Gateway...</title>
       </head>
       <body>
-                 <form id="payment_post" method="post" action="https://test.payu.in/_payment">
+                 <form id="payment_post" method="post" action="https://secure.payu.in/_payment">
                      <input type="hidden" name="key" value="${process.env.PAYU_KEY || 'YtZVuv'}" />
           <input type="hidden" name="txnid" value="${data.txnid}" />
           <input type="hidden" name="amount" value="${amount}" />
