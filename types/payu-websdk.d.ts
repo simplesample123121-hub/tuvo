@@ -34,6 +34,7 @@ declare module 'payu-websdk' {
     message: string;
     txnid?: string;
     error_code?: string;
+    [key: string]: any; // Allow additional properties like HTML content
   }
 
   interface PayUVerifyResponse {
@@ -57,7 +58,7 @@ declare module 'payu-websdk' {
   }
 
   class PayU {
-    constructor();
+    constructor(config: { key: string; salt: string }, environment?: string);
     paymentInitiate(data: PayUTransactionData): Promise<PayUResponse>;
     verifyPayment(txnid: string): Promise<PayUVerifyResponse>;
   }

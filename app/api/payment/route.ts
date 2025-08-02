@@ -25,36 +25,8 @@ export async function POST(request: NextRequest) {
 
     console.log('PayU transaction created:', data)
 
-    // PayU should return an HTML form that redirects to the payment gateway
-    // For now, return a mock HTML form since we're using mock PayU
-    const htmlForm = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>Redirecting to Payment Gateway...</title>
-      </head>
-      <body>
-                 <form id="payment_post" method="post" action="https://secure.payu.in/_payment">
-                                           <input type="hidden" name="key" value="YtZVuv" />
-          <input type="hidden" name="txnid" value="${data.txnid}" />
-          <input type="hidden" name="amount" value="${amount}" />
-          <input type="hidden" name="productinfo" value="${JSON.stringify(product)}" />
-          <input type="hidden" name="firstname" value="${firstname}" />
-          <input type="hidden" name="email" value="${email}" />
-          <input type="hidden" name="phone" value="${mobile}" />
-          <input type="hidden" name="surl" value="${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/payment/verify/${data.txnid}" />
-          <input type="hidden" name="furl" value="${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/payment/verify/${data.txnid}" />
-                     <input type="hidden" name="hash" value="${data.hash}" />
-        </form>
-        <script>
-          document.getElementById('payment_post').submit();
-        </script>
-        <p>Redirecting to payment gateway...</p>
-      </body>
-      </html>
-    `
-
-    return new Response(htmlForm, {
+    // Return the HTML form directly as text
+    return new Response(String(data), {
       headers: {
         'Content-Type': 'text/html',
       },
