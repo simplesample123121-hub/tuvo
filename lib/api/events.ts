@@ -82,7 +82,7 @@ export const eventsApi = {
   async getAll(): Promise<Event[]> {
     try {
       const response = await databases.listDocuments(databaseId, collections.events);
-      return response.documents as Event[];
+      return response.documents as unknown as Event[];
     } catch (error) {
       console.warn('Appwrite not accessible, using sample data:', error);
       return sampleEvents;
@@ -92,7 +92,7 @@ export const eventsApi = {
   async getById(id: string): Promise<Event | null> {
     try {
       const response = await databases.getDocument(databaseId, collections.events, id);
-      return response as Event;
+      return response as unknown as Event;
     } catch (error) {
       console.warn('Appwrite not accessible, using sample data:', error);
       return sampleEvents.find(event => event.$id === id) || null;
@@ -107,7 +107,7 @@ export const eventsApi = {
         ID.unique(),
         eventData
       );
-      return response as Event;
+      return response as unknown as Event;
     } catch (error) {
       console.error('Error creating event:', error);
       return null;
@@ -122,7 +122,7 @@ export const eventsApi = {
         id,
         eventData
       );
-      return response as Event;
+      return response as unknown as Event;
     } catch (error) {
       console.error('Error updating event:', error);
       return null;
@@ -146,7 +146,7 @@ export const eventsApi = {
       if (status) queries.push(Query.equal('status', status));
       
       const response = await databases.listDocuments(databaseId, collections.events, queries);
-      return response.documents as Event[];
+      return response.documents as unknown as Event[];
     } catch (error) {
       console.warn('Appwrite not accessible, using sample data:', error);
       return sampleEvents.filter(event => 
@@ -163,7 +163,7 @@ export const eventsApi = {
         collections.events,
         [Query.equal('status', 'upcoming')]
       );
-      return response.documents as Event[];
+      return response.documents as unknown as Event[];
     } catch (error) {
       console.warn('Appwrite not accessible, using sample data:', error);
       return sampleEvents.filter(event => event.status === 'upcoming');
@@ -177,7 +177,7 @@ export const eventsApi = {
         collections.events,
         [Query.equal('featured', true)]
       );
-      return response.documents as Event[];
+      return response.documents as unknown as Event[];
     } catch (error) {
       console.warn('Appwrite not accessible, using sample data:', error);
       return sampleEvents.filter(event => event.featured);
@@ -191,7 +191,7 @@ export const eventsApi = {
         collections.events,
         [Query.equal('category', category)]
       );
-      return response.documents as Event[];
+      return response.documents as unknown as Event[];
     } catch (error) {
       console.warn('Appwrite not accessible, using sample data:', error);
       return sampleEvents.filter(event => event.category === category);

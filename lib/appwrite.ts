@@ -5,26 +5,15 @@ const client = new Client()
     .setEndpoint('https://nyc.cloud.appwrite.io/v1')
     .setProject('688d133a00190cb1d93c');
 
-// Add API key for server-side operations (if available)
-if (typeof window === 'undefined' && process.env.APPWRITE_API_KEY) {
-    client.setKey(process.env.APPWRITE_API_KEY);
-}
+// Note: API key is not needed for client-side operations
+// Server-side operations should use the Appwrite SDK with proper authentication
 
 // Initialize services
 export const databases = new Databases(client);
 export const account = new Account(client);
 export const storage = new Storage(client);
 
-// Debug: Check if account object is properly initialized
-if (typeof window !== 'undefined') {
-  console.log('Appwrite Client:', client);
-  console.log('Appwrite Account object:', account);
-  console.log('Account prototype:', Object.getPrototypeOf(account));
-  console.log('Account methods:', Object.getOwnPropertyNames(Object.getPrototypeOf(account)));
-  console.log('createEmailSession method:', typeof account.createEmailSession);
-  console.log('createSession method:', typeof account.createSession);
-  console.log('All account properties:', Object.keys(account));
-}
+
 
 // Database and Collection IDs
 export const databaseId = 'eventbooker_db';

@@ -3,10 +3,10 @@ import { verifyPayUPayment } from '@/lib/payu.config'
 
 export async function POST(
   request: NextRequest,
-  context: { params: { txnid: string } }
+  context: { params: Promise<{ txnid: string }> }
 ) {
   try {
-    const { txnid } = context.params
+    const { txnid } = await context.params
 
     // Verify the payment with PayU
     const data = await verifyPayUPayment(txnid)
@@ -20,7 +20,8 @@ export async function POST(
     console.error('Payment verification error:', error)
     
     // Redirect to failure page
-    const redirectUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/payment/failure/${context.params.txnid}`
+    const params = await context.params
+    const redirectUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/payment/failure/${params.txnid}`
     return NextResponse.redirect(redirectUrl)
   }
 } 

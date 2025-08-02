@@ -87,7 +87,7 @@ export function EventDiscovery() {
             {filteredEvents.upcoming.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredEvents.upcoming.map((event) => (
-                  <EventCard key={event.id} event={event} />
+                  <EventCard key={event.$id} event={event} />
                 ))}
               </div>
             ) : (
@@ -101,7 +101,7 @@ export function EventDiscovery() {
             {filteredEvents.ongoing.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredEvents.ongoing.map((event) => (
-                  <EventCard key={event.id} event={event} />
+                  <EventCard key={event.$id} event={event} />
                 ))}
               </div>
             ) : (

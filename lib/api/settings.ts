@@ -55,7 +55,7 @@ export const settingsApi = {
     try {
       const response = await databases.listDocuments(databaseId, collections.settings);
       if (response.documents.length > 0) {
-        return response.documents[0] as Settings;
+        return response.documents[0] as unknown as Settings;
       }
       return null;
     } catch (error) {
@@ -121,7 +121,7 @@ export const settingsApi = {
         'default_settings',
         defaultSettings
       );
-      return response as Settings;
+      return response as unknown as Settings;
     } catch (error) {
       console.error('Error creating default settings:', error);
       return null;
@@ -142,7 +142,7 @@ export const settingsApi = {
         currentSettings.id,
         settingsData
       );
-      return response as Settings;
+      return response as unknown as Settings;
     } catch (error) {
       console.error('Error updating settings:', error);
       return null;

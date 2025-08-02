@@ -61,3 +61,27 @@ export function getEventStatus(eventDate: string, eventTime: string): 'upcoming'
   if (now >= eventDateTime && now <= eventEnd) return 'ongoing'
   return 'completed'
 } 
+
+// User profile utilities
+export const getUserAvatar = (profileString?: string): string => {
+  if (!profileString) return '';
+  
+  try {
+    const profile = JSON.parse(profileString);
+    return profile?.avatar || '';
+  } catch (error) {
+    console.error('Failed to parse profile for avatar:', error);
+    return '';
+  }
+};
+
+export const getUserProfile = (profileString?: string): any => {
+  if (!profileString) return null;
+  
+  try {
+    return JSON.parse(profileString);
+  } catch (error) {
+    console.error('Failed to parse profile:', error);
+    return null;
+  }
+}; 

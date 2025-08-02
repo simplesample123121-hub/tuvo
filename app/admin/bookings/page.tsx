@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -33,7 +33,7 @@ import { useAuth } from '@/contexts/AuthContext'
 // Sample bookings data
 const sampleBookings: Booking[] = [
   {
-    id: '1',
+    $id: '1',
     event_id: '1',
     attendee_name: 'John Doe',
     attendee_email: 'john.doe@example.com',
@@ -43,13 +43,15 @@ const sampleBookings: Booking[] = [
     attendee_address: '123 Main St, New York, NY 10001',
     payment_status: 'completed',
     payment_amount: 299,
+    payment_method: 'payu',
     qr_code: 'QR123456789',
     status: 'confirmed',
+    ticket_type: 'regular',
     created_at: '2024-01-15T10:00:00Z',
     updated_at: '2024-01-15T10:00:00Z'
   },
   {
-    id: '2',
+    $id: '2',
     event_id: '2',
     attendee_name: 'Jane Smith',
     attendee_email: 'jane.smith@example.com',
@@ -59,13 +61,15 @@ const sampleBookings: Booking[] = [
     attendee_address: '456 Oak Ave, Los Angeles, CA 90210',
     payment_status: 'completed',
     payment_amount: 199,
+    payment_method: 'payu',
     qr_code: 'QR987654321',
     status: 'confirmed',
+    ticket_type: 'regular',
     created_at: '2024-01-14T14:30:00Z',
     updated_at: '2024-01-14T14:30:00Z'
   },
   {
-    id: '3',
+    $id: '3',
     event_id: '3',
     attendee_name: 'Mike Johnson',
     attendee_email: 'mike.johnson@example.com',
@@ -75,13 +79,15 @@ const sampleBookings: Booking[] = [
     attendee_address: '789 Pine St, Chicago, IL 60601',
     payment_status: 'pending',
     payment_amount: 149,
+    payment_method: 'payu',
     qr_code: 'QR456789123',
     status: 'pending',
+    ticket_type: 'regular',
     created_at: '2024-01-13T09:15:00Z',
     updated_at: '2024-01-13T09:15:00Z'
   },
   {
-    id: '4',
+    $id: '4',
     event_id: '4',
     attendee_name: 'Sarah Wilson',
     attendee_email: 'sarah.wilson@example.com',
@@ -91,8 +97,10 @@ const sampleBookings: Booking[] = [
     attendee_address: '321 Elm St, Miami, FL 33101',
     payment_status: 'completed',
     payment_amount: 75,
+    payment_method: 'payu',
     qr_code: 'QR789123456',
     status: 'confirmed',
+    ticket_type: 'regular',
     created_at: '2024-01-12T16:45:00Z',
     updated_at: '2024-01-12T16:45:00Z'
   }
@@ -151,17 +159,17 @@ export default function BookingsPage() {
     return matchesSearch && matchesStatus && matchesPaymentStatus && matchesEvent
   })
 
-  const getEventName = (eventId: string) => {
-    const event = events.find(e => e.id === eventId)
+    const getEventName = (eventId: string) => {    
+    const event = events.find(e => e.$id === eventId)
     return event?.name || 'Unknown Event'
   }
 
-  const handleStatusChange = async (bookingId: string, newStatus: 'confirmed' | 'cancelled' | 'refunded') => {
+  const handleStatusChange = async (bookingId: string, newStatus: 'confirmed' | 'cancelled') => {
     try {
       const updatedBooking = await bookingsApi.update(bookingId, { status: newStatus })
       if (updatedBooking) {
         setBookings(bookings.map(booking => 
-          booking.id === bookingId ? updatedBooking : booking
+          booking.$id === bookingId ? updatedBooking : booking
         ))
       }
     } catch (error) {
@@ -174,7 +182,7 @@ export default function BookingsPage() {
       const updatedBooking = await bookingsApi.update(bookingId, { payment_status: newPaymentStatus })
       if (updatedBooking) {
         setBookings(bookings.map(booking => 
-          booking.id === bookingId ? updatedBooking : booking
+          booking.$id === bookingId ? updatedBooking : booking
         ))
       }
     } catch (error) {
@@ -187,7 +195,7 @@ export default function BookingsPage() {
       try {
         const success = await bookingsApi.delete(bookingId)
         if (success) {
-          setBookings(bookings.filter(booking => booking.id !== bookingId))
+          setBookings(bookings.filter(booking => booking.$id !== bookingId))
         }
       } catch (error) {
         console.error('Error deleting booking:', error)
@@ -355,7 +363,7 @@ export default function BookingsPage() {
         <CardContent>
           <div className="space-y-4">
             {filteredBookings.map((booking) => (
-              <div key={booking.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+              <div key={booking.$id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
                 <div className="flex items-center space-x-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
@@ -374,7 +382,7 @@ export default function BookingsPage() {
                 <div className="flex items-center space-x-4">
                   <div className="text-right">
                     <p className="font-medium">{formatPrice(booking.payment_amount)}</p>
-                    <p className="text-sm text-muted-foreground">{formatDate(booking.created_at)}</p>
+                    <p className="text-sm text-muted-foreground">{formatDate(booking.created_at || '')}</p>
                   </div>
                   <div className="flex gap-1">
                     <Button 
@@ -393,7 +401,7 @@ export default function BookingsPage() {
                     <Button 
                       variant="ghost" 
                       size="sm" 
-                      onClick={() => handleDeleteBooking(booking.id)}
+                      onClick={() => handleDeleteBooking(booking.$id)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -459,7 +467,7 @@ export default function BookingsPage() {
                   </div>
                   <div>
                     <Label className="text-sm text-muted-foreground">Booking ID</Label>
-                    <p className="font-medium">{selectedBooking.id}</p>
+                    <p className="font-medium">{selectedBooking.$id}</p>
                   </div>
                   <div>
                     <Label className="text-sm text-muted-foreground">QR Code</Label>
@@ -467,7 +475,7 @@ export default function BookingsPage() {
                   </div>
                   <div>
                     <Label className="text-sm text-muted-foreground">Created</Label>
-                    <p className="font-medium">{formatDate(selectedBooking.created_at)}</p>
+                    <p className="font-medium">{formatDate(selectedBooking.created_at || '')}</p>
                   </div>
                 </div>
               </div>

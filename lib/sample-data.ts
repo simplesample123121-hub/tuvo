@@ -1,8 +1,8 @@
-import { Event } from './supabase'
+import { Event } from './api/events'
 
 export const sampleEvents: Event[] = [
   {
-    id: '1',
+    $id: '1',
     name: 'Tech Conference 2024',
     description: 'Join us for the biggest technology conference of the year. Learn from industry experts, network with professionals, and discover the latest trends in technology.',
     date: '2024-03-15',
@@ -15,10 +15,14 @@ export const sampleEvents: Event[] = [
     status: 'upcoming',
     image_url: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&h=600&fit=crop',
     created_at: '2024-01-15T10:00:00Z',
-    updated_at: '2024-01-15T10:00:00Z'
+    updated_at: '2024-01-15T10:00:00Z',
+    created_by: 'admin',
+    tags: ['technology', 'conference'],
+    featured: true,
+    location: JSON.stringify({ address: 'Convention Center, Downtown', city: 'Metropolis', state: 'CA', country: 'USA', coordinates: { latitude: 0, longitude: 0 } })
   },
   {
-    id: '2',
+    $id: '2',
     name: 'Summer Music Festival',
     description: 'A three-day music festival featuring top artists from around the world. Experience amazing performances, great food, and unforgettable memories.',
     date: '2024-06-20',
@@ -31,10 +35,14 @@ export const sampleEvents: Event[] = [
     status: 'upcoming',
     image_url: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=600&fit=crop',
     created_at: '2024-01-10T10:00:00Z',
-    updated_at: '2024-01-10T10:00:00Z'
+    updated_at: '2024-01-10T10:00:00Z',
+    created_by: 'admin',
+    tags: ['music', 'festival'],
+    featured: true,
+    location: JSON.stringify({ address: 'Central Park Amphitheater', city: 'Metropolis', state: 'CA', country: 'USA', coordinates: { latitude: 0, longitude: 0 } })
   },
   {
-    id: '3',
+    $id: '3',
     name: 'Food & Wine Expo',
     description: 'Taste the finest cuisines and wines from renowned chefs and wineries. A culinary experience you won\'t want to miss.',
     date: '2024-04-10',
@@ -47,10 +55,14 @@ export const sampleEvents: Event[] = [
     status: 'upcoming',
     image_url: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&h=600&fit=crop',
     created_at: '2024-01-05T10:00:00Z',
-    updated_at: '2024-01-05T10:00:00Z'
+    updated_at: '2024-01-05T10:00:00Z',
+    created_by: 'admin',
+    tags: ['food', 'wine'],
+    featured: false,
+    location: JSON.stringify({ address: 'Grand Hotel Ballroom', city: 'Metropolis', state: 'CA', country: 'USA', coordinates: { latitude: 0, longitude: 0 } })
   },
   {
-    id: '4',
+    $id: '4',
     name: 'Art Gallery Opening',
     description: 'Exclusive opening night of the contemporary art exhibition featuring works from emerging and established artists.',
     date: '2024-02-28',
@@ -63,10 +75,14 @@ export const sampleEvents: Event[] = [
     status: 'upcoming',
     image_url: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=800&h=600&fit=crop',
     created_at: '2024-01-20T10:00:00Z',
-    updated_at: '2024-01-20T10:00:00Z'
+    updated_at: '2024-01-20T10:00:00Z',
+    created_by: 'admin',
+    tags: ['art', 'gallery'],
+    featured: true,
+    location: JSON.stringify({ address: 'Modern Art Museum', city: 'Metropolis', state: 'CA', country: 'USA', coordinates: { latitude: 0, longitude: 0 } })
   },
   {
-    id: '5',
+    $id: '5',
     name: 'Business Networking Summit',
     description: 'Connect with industry leaders, entrepreneurs, and professionals. Build meaningful relationships and explore new opportunities.',
     date: '2024-05-12',
@@ -79,10 +95,14 @@ export const sampleEvents: Event[] = [
     status: 'upcoming',
     image_url: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&h=600&fit=crop',
     created_at: '2024-01-12T10:00:00Z',
-    updated_at: '2024-01-12T10:00:00Z'
+    updated_at: '2024-01-12T10:00:00Z',
+    created_by: 'admin',
+    tags: ['business', 'networking'],
+    featured: true,
+    location: JSON.stringify({ address: 'Business Center Plaza', city: 'Metropolis', state: 'CA', country: 'USA', coordinates: { latitude: 0, longitude: 0 } })
   },
   {
-    id: '6',
+    $id: '6',
     name: 'Comedy Night Special',
     description: 'An evening of laughter with top comedians from around the country. Perfect for a night out with friends.',
     date: '2024-03-08',
@@ -95,10 +115,14 @@ export const sampleEvents: Event[] = [
     status: 'upcoming',
     image_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=600&fit=crop',
     created_at: '2024-01-18T10:00:00Z',
-    updated_at: '2024-01-18T10:00:00Z'
+    updated_at: '2024-01-18T10:00:00Z',
+    created_by: 'admin',
+    tags: ['comedy', 'night'],
+    featured: false,
+    location: JSON.stringify({ address: 'Comedy Club Downtown', city: 'Metropolis', state: 'CA', country: 'USA', coordinates: { latitude: 0, longitude: 0 } })
   },
   {
-    id: '7',
+    $id: '7',
     name: 'Basketball Championship',
     description: 'Witness the thrilling final match of the season. Cheer for your favorite team and experience the excitement of live sports.',
     date: '2024-04-25',
@@ -111,10 +135,14 @@ export const sampleEvents: Event[] = [
     status: 'upcoming',
     image_url: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=800&h=600&fit=crop',
     created_at: '2024-01-08T10:00:00Z',
-    updated_at: '2024-01-08T10:00:00Z'
+    updated_at: '2024-01-08T10:00:00Z',
+    created_by: 'admin',
+    tags: ['sports', 'basketball'],
+    featured: true,
+    location: JSON.stringify({ address: 'Sports Arena', city: 'Metropolis', state: 'CA', country: 'USA', coordinates: { latitude: 0, longitude: 0 } })
   },
   {
-    id: '8',
+    $id: '8',
     name: 'Educational Workshop Series',
     description: 'Learn new skills and expand your knowledge with our comprehensive workshop series. Topics include digital marketing, coding, and design.',
     date: '2024-03-22',
@@ -127,10 +155,14 @@ export const sampleEvents: Event[] = [
     status: 'upcoming',
     image_url: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&h=600&fit=crop',
     created_at: '2024-01-25T10:00:00Z',
-    updated_at: '2024-01-25T10:00:00Z'
+    updated_at: '2024-01-25T10:00:00Z',
+    created_by: 'admin',
+    tags: ['education', 'workshop'],
+    featured: false,
+    location: JSON.stringify({ address: 'Learning Center', city: 'Metropolis', state: 'CA', country: 'USA', coordinates: { latitude: 0, longitude: 0 } })
   },
   {
-    id: '9',
+    $id: '9',
     name: 'Live Concert: Rock Legends',
     description: 'Experience the energy of live rock music with legendary bands performing their greatest hits.',
     date: '2024-02-15',
@@ -143,10 +175,14 @@ export const sampleEvents: Event[] = [
     status: 'ongoing',
     image_url: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=600&fit=crop',
     created_at: '2024-01-30T10:00:00Z',
-    updated_at: '2024-01-30T10:00:00Z'
+    updated_at: '2024-01-30T10:00:00Z',
+    created_by: 'admin',
+    tags: ['music', 'concert'],
+    featured: true,
+    location: JSON.stringify({ address: 'Stadium Arena', city: 'Metropolis', state: 'CA', country: 'USA', coordinates: { latitude: 0, longitude: 0 } })
   },
   {
-    id: '10',
+    $id: '10',
     name: 'Startup Pitch Competition',
     description: 'Watch innovative startups pitch their ideas to investors. Network with entrepreneurs and discover the next big thing.',
     date: '2024-04-05',
@@ -159,7 +195,11 @@ export const sampleEvents: Event[] = [
     status: 'upcoming',
     image_url: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&h=600&fit=crop',
     created_at: '2024-01-22T10:00:00Z',
-    updated_at: '2024-01-22T10:00:00Z'
+    updated_at: '2024-01-22T10:00:00Z',
+    created_by: 'admin',
+    tags: ['business', 'pitch'],
+    featured: false,
+    location: JSON.stringify({ address: 'Innovation Hub', city: 'Metropolis', state: 'CA', country: 'USA', coordinates: { latitude: 0, longitude: 0 } })
   }
 ]
 

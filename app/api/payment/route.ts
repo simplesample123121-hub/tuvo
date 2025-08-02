@@ -25,12 +25,8 @@ export async function POST(request: NextRequest) {
 
     console.log('PayU transaction created:', data)
 
-    // Return the HTML form directly as text
-    return new Response(data, {
-      headers: {
-        'Content-Type': 'text/html',
-      },
-    })
+    // Return the response as JSON since PayU returns a response object
+    return NextResponse.json(data)
   } catch (error: any) {
     console.error('Payment initiation error:', error)
     return NextResponse.json(

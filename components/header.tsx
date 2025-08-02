@@ -7,6 +7,7 @@ import { Menu, X, User, LogOut, Settings, Shield } from 'lucide-react'
 import { useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { getUserAvatar } from '@/lib/utils'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -60,7 +61,7 @@ export function Header() {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={user?.profile?.avatar} />
+                      <AvatarImage src={getUserAvatar(user?.profile)} />
                       <AvatarFallback>
                         {user?.name?.charAt(0).toUpperCase()}
                       </AvatarFallback>
@@ -170,7 +171,7 @@ export function Header() {
                 <>
                   <div className="flex items-center space-x-3 mb-4">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={user?.profile?.avatar} />
+                      <AvatarImage src={getUserAvatar(user?.profile)} />
                       <AvatarFallback>
                         {user?.name?.charAt(0).toUpperCase()}
                       </AvatarFallback>

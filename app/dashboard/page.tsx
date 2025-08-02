@@ -27,7 +27,7 @@ import {
 import { formatPrice, formatDate, formatTime } from '@/lib/utils'
 
 interface UserBooking {
-  id: string;
+  $id: string;
   event_id: string;
   event_name: string;
   event_date: string;
@@ -37,7 +37,7 @@ interface UserBooking {
   payment_status: string;
   payment_amount: number;
   status: string;
-  created_at: string;
+  created_at?: string;
 }
 
 export default function DashboardPage() {
@@ -154,7 +154,7 @@ export default function DashboardPage() {
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center space-x-4">
             <Avatar className="h-16 w-16">
-              <AvatarImage src={user?.profile?.avatar} />
+              <AvatarImage src="" />
               <AvatarFallback className="text-lg">
                 {user?.name?.charAt(0).toUpperCase()}
               </AvatarFallback>
@@ -267,7 +267,7 @@ export default function DashboardPage() {
                 ) : (
                   <div className="space-y-4">
                     {bookings.map((booking) => (
-                      <div key={booking.id} className="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                      <div key={booking.$id} className="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                         <div className="flex justify-between items-start">
                           <div className="flex-1">
                             <h3 className="font-semibold text-lg">{booking.event_name}</h3>

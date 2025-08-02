@@ -71,7 +71,7 @@ export const bookingsApi = {
   async getAll(): Promise<Booking[]> {
     try {
       const response = await databases.listDocuments(databaseId, collections.bookings);
-      return response.documents as Booking[];
+      return response.documents as unknown as Booking[];
     } catch (error) {
       console.warn('Appwrite not accessible, using sample data:', error);
       return sampleBookings;
@@ -81,7 +81,7 @@ export const bookingsApi = {
   async getById(id: string): Promise<Booking | null> {
     try {
       const response = await databases.getDocument(databaseId, collections.bookings, id);
-      return response as Booking;
+      return response as unknown as Booking;
     } catch (error) {
       console.warn('Appwrite not accessible, using sample data:', error);
       return sampleBookings.find(booking => booking.$id === id) || null;
@@ -96,7 +96,7 @@ export const bookingsApi = {
         ID.unique(),
         bookingData
       );
-      return response as Booking;
+      return response as unknown as Booking;
     } catch (error) {
       console.error('Error creating booking:', error);
       return null;
@@ -111,7 +111,7 @@ export const bookingsApi = {
         id,
         bookingData
       );
-      return response as Booking;
+      return response as unknown as Booking;
     } catch (error) {
       console.error('Error updating booking:', error);
       return null;
@@ -135,7 +135,7 @@ export const bookingsApi = {
         collections.bookings,
         [Query.equal('event_id', eventId)]
       );
-      return response.documents as Booking[];
+      return response.documents as unknown as Booking[];
     } catch (error) {
       console.warn('Appwrite not accessible, using sample data:', error);
       return sampleBookings.filter(booking => booking.event_id === eventId);
@@ -149,7 +149,7 @@ export const bookingsApi = {
         collections.bookings,
         [Query.equal('user_id', userId)]
       );
-      return response.documents as Booking[];
+      return response.documents as unknown as Booking[];
     } catch (error) {
       console.warn('Appwrite not accessible, using sample data:', error);
       return sampleBookings.filter(booking => booking.user_id === userId);
@@ -163,7 +163,7 @@ export const bookingsApi = {
         collections.bookings,
         [Query.equal('status', status)]
       );
-      return response.documents as Booking[];
+      return response.documents as unknown as Booking[];
     } catch (error) {
       console.warn('Appwrite not accessible, using sample data:', error);
       return sampleBookings.filter(booking => booking.status === status);
@@ -177,7 +177,7 @@ export const bookingsApi = {
         collections.bookings,
         [Query.equal('payment_status', paymentStatus)]
       );
-      return response.documents as Booking[];
+      return response.documents as unknown as Booking[];
     } catch (error) {
       console.warn('Appwrite not accessible, using sample data:', error);
       return sampleBookings.filter(booking => booking.payment_status === paymentStatus);
@@ -191,7 +191,7 @@ export const bookingsApi = {
         collections.bookings,
         [Query.search('attendee_name', query)]
       );
-      return response.documents as Booking[];
+      return response.documents as unknown as Booking[];
     } catch (error) {
       console.warn('Appwrite not accessible, using sample data:', error);
       return sampleBookings.filter(booking => 
@@ -208,7 +208,7 @@ export const bookingsApi = {
         collections.bookings,
         [Query.equal('payment_status', 'completed')]
       );
-      const bookings = response.documents as Booking[];
+      const bookings = response.documents as unknown as Booking[];
       return bookings.reduce((total, booking) => total + booking.payment_amount, 0);
     } catch (error) {
       console.warn('Appwrite not accessible, using sample data:', error);

@@ -15,7 +15,7 @@ import {
   Eye, 
   Edit, 
   Trash2,
-  User,
+  User as UserIcon,
   Shield,
   Crown,
   Mail,
@@ -26,9 +26,9 @@ import {
 import { useAuth } from '@/contexts/AuthContext'
 import { databases, databaseId, collections } from '@/lib/appwrite'
 import { ID, Query } from 'appwrite'
-import { User as UserType } from '@/contexts/AuthContext'
+import { User } from '@/contexts/AuthContext'
 
-interface UserWithStats extends UserType {
+interface UserWithStats extends User {
   bookingCount: number;
   totalSpent: number;
   lastBooking?: string;
@@ -53,7 +53,7 @@ export default function UsersPage() {
     try {
       setLoading(true)
       const response = await databases.listDocuments(databaseId, collections.users)
-      const usersData = response.documents as UserType[]
+      const usersData = response.documents as unknown as User[]
 
       // Get stats for each user
       const usersWithStats = await Promise.all(
@@ -107,7 +107,7 @@ export default function UsersPage() {
     return matchesSearch && matchesRole && matchesStatus
   })
 
-  const handleUpdateUser = async (userId: string, updates: Partial<UserType>) => {
+  const handleUpdateUser = async (userId: string, updates: Partial<User>) => {
     try {
       await databases.updateDocument(
         databaseId,
@@ -142,7 +142,7 @@ export default function UsersPage() {
 
   const getRoleBadge = (role: string) => {
     const roleConfig = {
-      user: { color: 'bg-blue-100 text-blue-800', icon: User },
+      user: { color: 'bg-blue-100 text-blue-800', icon: UserIcon },
       admin: { color: 'bg-purple-100 text-purple-800', icon: Shield },
       super_admin: { color: 'bg-yellow-100 text-yellow-800', icon: Crown }
     }
@@ -263,7 +263,7 @@ export default function UsersPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4">
                     <Avatar>
-                      <AvatarImage src={user.profile?.avatar} />
+                      <AvatarImage src="" />
                       <AvatarFallback>
                         {user.name?.charAt(0).toUpperCase()}
                       </AvatarFallback>
