@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
       </head>
       <body>
                  <form id="payment_post" method="post" action="https://secure.payu.in/_payment">
-                     <input type="hidden" name="key" value="${process.env.PAYU_KEY || 'YtZVuv'}" />
+                                           <input type="hidden" name="key" value="YtZVuv" />
           <input type="hidden" name="txnid" value="${data.txnid}" />
           <input type="hidden" name="amount" value="${amount}" />
           <input type="hidden" name="productinfo" value="${JSON.stringify(product)}" />
