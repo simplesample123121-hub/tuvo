@@ -1,0 +1,639 @@
+{
+    "projectId": "688d133a00190cb1d93c",
+    "endpoint": "https://nyc.cloud.appwrite.io/v1",
+    "projectName": "Eventbooker",
+    "settings": {
+        "services": {
+            "account": true,
+            "avatars": true,
+            "databases": true,
+            "locale": true,
+            "health": true,
+            "storage": true,
+            "teams": true,
+            "users": true,
+            "sites": true,
+            "functions": true,
+            "graphql": true,
+            "messaging": true
+        },
+        "auth": {
+            "methods": {
+                "jwt": true,
+                "phone": true,
+                "invites": true,
+                "anonymous": true,
+                "email-otp": true,
+                "magic-url": true,
+                "email-password": true
+            },
+            "security": {
+                "duration": 31536000,
+                "limit": 0,
+                "sessionsLimit": 10,
+                "passwordHistory": 0,
+                "passwordDictionary": false,
+                "personalDataCheck": false,
+                "sessionAlerts": false,
+                "mockNumbers": []
+            }
+        }
+    },
+    "databases": [
+        {
+            "$id": "eventbooker_db",
+            "name": "EventBooker Database",
+            "enabled": true
+        }
+    ],
+    "collections": [
+        {
+            "$id": "events",
+            "databaseId": "eventbooker_db",
+            "name": "Events",
+            "documentSecurity": false,
+            "permissions": [
+                "read(\"any\")",
+                "create(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "attributes": [
+                {
+                    "key": "name",
+                    "type": "string",
+                    "size": 255,
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "description",
+                    "type": "string",
+                    "size": 1000,
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "date",
+                    "type": "string",
+                    "size": 10,
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "time",
+                    "type": "string",
+                    "size": 5,
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "venue",
+                    "type": "string",
+                    "size": 255,
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "category",
+                    "type": "string",
+                    "size": 50,
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "price",
+                    "type": "double",
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "ticket_count",
+                    "type": "integer",
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "available_tickets",
+                    "type": "integer",
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "status",
+                    "type": "string",
+                    "size": 20,
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "image_url",
+                    "type": "string",
+                    "size": 500,
+                    "required": false,
+                    "array": false
+                },
+                {
+                    "key": "created_by",
+                    "type": "string",
+                    "size": 36,
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "tags",
+                    "type": "string",
+                    "size": 255,
+                    "required": false,
+                    "array": true
+                },
+                {
+                    "key": "featured",
+                    "type": "boolean",
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "location",
+                    "type": "string",
+                    "size": 1000,
+                    "required": false,
+                    "array": false
+                }
+            ],
+            "indexes": [
+                {
+                    "key": "name_index",
+                    "type": "key",
+                    "attributes": ["name"],
+                    "orders": ["ASC"]
+                },
+                {
+                    "key": "category_index",
+                    "type": "key",
+                    "attributes": ["category"],
+                    "orders": ["ASC"]
+                },
+                {
+                    "key": "status_index",
+                    "type": "key",
+                    "attributes": ["status"],
+                    "orders": ["ASC"]
+                },
+                {
+                    "key": "date_index",
+                    "type": "key",
+                    "attributes": ["date"],
+                    "orders": ["ASC"]
+                }
+            ],
+            "enabled": true
+        },
+        {
+            "$id": "bookings",
+            "databaseId": "eventbooker_db",
+            "name": "Bookings",
+            "documentSecurity": false,
+            "permissions": [
+                "read(\"any\")",
+                "create(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "attributes": [
+                {
+                    "key": "event_id",
+                    "type": "string",
+                    "size": 36,
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "attendee_name",
+                    "type": "string",
+                    "size": 255,
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "attendee_email",
+                    "type": "string",
+                    "size": 255,
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "attendee_phone",
+                    "type": "string",
+                    "size": 20,
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "attendee_gender",
+                    "type": "string",
+                    "size": 10,
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "attendee_age",
+                    "type": "integer",
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "attendee_address",
+                    "type": "string",
+                    "size": 500,
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "payment_status",
+                    "type": "string",
+                    "size": 20,
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "payment_amount",
+                    "type": "double",
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "payment_method",
+                    "type": "string",
+                    "size": 20,
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "qr_code",
+                    "type": "string",
+                    "size": 255,
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "status",
+                    "type": "string",
+                    "size": 20,
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "user_id",
+                    "type": "string",
+                    "size": 36,
+                    "required": false,
+                    "array": false
+                },
+                {
+                    "key": "session_id",
+                    "type": "string",
+                    "size": 255,
+                    "required": false,
+                    "array": false
+                },
+                {
+                    "key": "notes",
+                    "type": "string",
+                    "size": 1000,
+                    "required": false,
+                    "array": false
+                },
+                {
+                    "key": "ticket_type",
+                    "type": "string",
+                    "size": 20,
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "discount_code",
+                    "type": "string",
+                    "size": 50,
+                    "required": false,
+                    "array": false
+                },
+                {
+                    "key": "discount_amount",
+                    "type": "double",
+                    "required": false,
+                    "array": false
+                }
+            ],
+            "indexes": [
+                {
+                    "key": "event_id_index",
+                    "type": "key",
+                    "attributes": ["event_id"],
+                    "orders": ["ASC"]
+                },
+                {
+                    "key": "user_id_index",
+                    "type": "key",
+                    "attributes": ["user_id"],
+                    "orders": ["ASC"]
+                },
+                {
+                    "key": "status_index",
+                    "type": "key",
+                    "attributes": ["status"],
+                    "orders": ["ASC"]
+                },
+                {
+                    "key": "payment_status_index",
+                    "type": "key",
+                    "attributes": ["payment_status"],
+                    "orders": ["ASC"]
+                }
+            ],
+            "enabled": true
+        },
+        {
+            "$id": "users",
+            "databaseId": "eventbooker_db",
+            "name": "Users",
+            "documentSecurity": false,
+            "permissions": [
+                "read(\"any\")",
+                "create(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "attributes": [
+                {
+                    "key": "email",
+                    "type": "string",
+                    "size": 255,
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "name",
+                    "type": "string",
+                    "size": 255,
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "phone",
+                    "type": "string",
+                    "size": 20,
+                    "required": false,
+                    "array": false
+                },
+                {
+                    "key": "role",
+                    "type": "string",
+                    "size": 20,
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "status",
+                    "type": "string",
+                    "size": 20,
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "last_login",
+                    "type": "string",
+                    "size": 30,
+                    "required": false,
+                    "array": false
+                },
+                {
+                    "key": "profile",
+                    "type": "string",
+                    "size": 1000,
+                    "required": false,
+                    "array": false
+                },
+                {
+                    "key": "addresses",
+                    "type": "string",
+                    "size": 2000,
+                    "required": false,
+                    "array": false
+                }
+            ],
+            "indexes": [
+                {
+                    "key": "email_index",
+                    "type": "key",
+                    "attributes": ["email"],
+                    "orders": ["ASC"]
+                },
+                {
+                    "key": "role_index",
+                    "type": "key",
+                    "attributes": ["role"],
+                    "orders": ["ASC"]
+                },
+                {
+                    "key": "status_index",
+                    "type": "key",
+                    "attributes": ["status"],
+                    "orders": ["ASC"]
+                }
+            ],
+            "enabled": true
+        },
+        {
+            "$id": "settings",
+            "databaseId": "eventbooker_db",
+            "name": "Settings",
+            "documentSecurity": false,
+            "permissions": [
+                "read(\"any\")",
+                "create(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "attributes": [
+                {
+                    "key": "platform_name",
+                    "type": "string",
+                    "size": 255,
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "platform_description",
+                    "type": "string",
+                    "size": 500,
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "contact_email",
+                    "type": "string",
+                    "size": 255,
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "contact_phone",
+                    "type": "string",
+                    "size": 20,
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "timezone",
+                    "type": "string",
+                    "size": 50,
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "currency",
+                    "type": "string",
+                    "size": 10,
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "smtp_config",
+                    "type": "string",
+                    "size": 2000,
+                    "required": false,
+                    "array": false
+                },
+                {
+                    "key": "payment_config",
+                    "type": "string",
+                    "size": 2000,
+                    "required": false,
+                    "array": false
+                },
+                {
+                    "key": "notifications",
+                    "type": "string",
+                    "size": 1000,
+                    "required": false,
+                    "array": false
+                },
+                {
+                    "key": "security",
+                    "type": "string",
+                    "size": 1000,
+                    "required": false,
+                    "array": false
+                },
+                {
+                    "key": "appearance",
+                    "type": "string",
+                    "size": 1000,
+                    "required": false,
+                    "array": false
+                },
+                {
+                    "key": "integrations",
+                    "type": "string",
+                    "size": 2000,
+                    "required": false,
+                    "array": false
+                }
+            ],
+            "indexes": [],
+            "enabled": true
+        },
+        {
+            "$id": "analytics",
+            "databaseId": "eventbooker_db",
+            "name": "Analytics",
+            "documentSecurity": false,
+            "permissions": [
+                "read(\"any\")",
+                "create(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "attributes": [
+                {
+                    "key": "type",
+                    "type": "string",
+                    "size": 50,
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "page",
+                    "type": "string",
+                    "size": 255,
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "action",
+                    "type": "string",
+                    "size": 100,
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "metadata",
+                    "type": "string",
+                    "size": 2000,
+                    "required": false,
+                    "array": false
+                },
+                {
+                    "key": "user_id",
+                    "type": "string",
+                    "size": 36,
+                    "required": false,
+                    "array": false
+                },
+                {
+                    "key": "session_id",
+                    "type": "string",
+                    "size": 255,
+                    "required": false,
+                    "array": false
+                },
+                {
+                    "key": "user_agent",
+                    "type": "string",
+                    "size": 500,
+                    "required": false,
+                    "array": false
+                },
+                {
+                    "key": "ip_address",
+                    "type": "string",
+                    "size": 45,
+                    "required": false,
+                    "array": false
+                }
+            ],
+            "indexes": [
+                {
+                    "key": "type_index",
+                    "type": "key",
+                    "attributes": ["type"],
+                    "orders": ["ASC"]
+                },
+                {
+                    "key": "user_id_index",
+                    "type": "key",
+                    "attributes": ["user_id"],
+                    "orders": ["ASC"]
+                },
+                {
+                    "key": "timestamp_index",
+                    "type": "key",
+                    "attributes": ["$createdAt"],
+                    "orders": ["DESC"]
+                }
+            ],
+            "enabled": true
+        }
+    ]
+}
