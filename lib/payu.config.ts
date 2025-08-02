@@ -71,8 +71,8 @@ export const createPayUTransaction = async ({
     firstname: firstname,
     email: email,
     phone: mobile,
-    surl: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/payment/success/${txnid}`,
-    furl: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/payment/failure/${txnid}`,
+    surl: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.tuvo.in'}/payment/success/${txnid}`,
+    furl: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.tuvo.in'}/payment/failure/${txnid}`,
     hash: hash
   })
 

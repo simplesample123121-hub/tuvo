@@ -59,6 +59,15 @@ export function PayUPaymentForm({ bookingData, onPaymentComplete }: PayUPaymentF
         mobile: bookingData.attendeePhone
       }
 
+      // Store payment data in localStorage for success page
+      localStorage.setItem('paymentData', JSON.stringify({
+        amount: bookingData.amount,
+        productinfo: JSON.stringify(paymentData.product),
+        email: bookingData.attendeeEmail,
+        firstname: bookingData.attendeeName,
+        product: paymentData.product
+      }))
+
       const response = await fetch('/api/payment', {
         method: 'POST',
         headers: {

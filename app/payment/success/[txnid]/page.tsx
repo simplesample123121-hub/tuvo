@@ -31,16 +31,30 @@ export default function PaymentSuccessPage() {
   useEffect(() => {
     const handlePaymentSuccess = async () => {
       try {
-        // Get payment data from URL parameters or localStorage
+        // Get payment data from URL parameters
         const urlParams = new URLSearchParams(window.location.search)
+        
+        // Also check for data in localStorage (in case it was stored during payment initiation)
+        const storedPaymentData = localStorage.getItem('paymentData')
+        let storedData = null
+        if (storedPaymentData) {
+          try {
+            storedData = JSON.parse(storedPaymentData)
+          } catch (e) {
+            console.log('No stored payment data found')
+          }
+        }
+
         const paymentData: PaymentSuccessData = {
           txnid: txnid,
-          amount: urlParams.get('amount') || '',
+          amount: urlParams.get('amount') || storedData?.amount || '',
           status: urlParams.get('status') || 'success',
-          productinfo: urlParams.get('productinfo') || '',
-          email: urlParams.get('email') || '',
-          firstname: urlParams.get('firstname') || ''
+          productinfo: urlParams.get('productinfo') || storedData?.productinfo || '',
+          email: urlParams.get('email') || storedData?.email || '',
+          firstname: urlParams.get('firstname') || storedData?.firstname || ''
         }
+
+        console.log('Payment data received:', paymentData)
 
         // Parse product info to get event details
         let eventData
@@ -48,14 +62,19 @@ export default function PaymentSuccessPage() {
           eventData = JSON.parse(paymentData.productinfo)
         } catch (e) {
           console.error('Failed to parse product info:', e)
-          setError('Invalid payment data')
-          setLoading(false)
-          return
+          // Try to get event data from stored data
+          if (storedData?.product) {
+            eventData = storedData.product
+          } else {
+            setError('Invalid payment data - unable to parse event information')
+            setLoading(false)
+            return
+          }
         }
 
         // Create booking record in database
         const bookingRecord = {
-          user_id: user?.$id || '',
+          user_id: user?.$id || 'guest', // Use 'guest' if no user is logged in
           event_id: eventData.eventId || '',
           event_name: eventData.eventName || '',
           ticket_type: eventData.ticketType || 'General',
@@ -83,6 +102,10 @@ export default function PaymentSuccessPage() {
 
         console.log('✅ Booking created successfully:', createdBooking)
         setBookingData(createdBooking)
+        
+        // Clean up stored payment data
+        localStorage.removeItem('paymentData')
+        
         setLoading(false)
 
       } catch (error) {
