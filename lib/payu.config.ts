@@ -66,13 +66,13 @@ export const createPayUTransaction = async ({
     isAmountFilledByCustomer: false,
     txnid: txnid,
     amount: amount,
-    currency: 'INR',
+    currency: 'USD',
     productinfo: productinfo,
     firstname: firstname,
     email: email,
     phone: mobile,
-    surl: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/payment/verify/${txnid}`,
-    furl: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/payment/verify/${txnid}`,
+    surl: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/payment/success/${txnid}`,
+    furl: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/payment/failure/${txnid}`,
     hash: hash
   })
 

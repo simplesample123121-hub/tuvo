@@ -34,84 +34,96 @@ import { useAuth } from '@/contexts/AuthContext'
 const sampleBookings: Booking[] = [
   {
     $id: '1',
+    user_id: 'user1',
     event_id: '1',
-    attendee_name: 'John Doe',
-    attendee_email: 'john.doe@example.com',
-    attendee_phone: '+1-555-0123',
-    attendee_gender: 'male',
-    attendee_age: 28,
-    attendee_address: '123 Main St, New York, NY 10001',
+    event_name: 'Tech Conference 2024',
+    event_date: '2024-02-15T10:00:00Z',
+    event_location: 'Convention Center, New York',
+    ticket_type: 'Regular',
+    quantity: 1,
+    amount: 299,
+    currency: 'USD',
+    payment_method: 'PayU',
     payment_status: 'completed',
-    payment_amount: 299,
-    payment_method: 'payu',
-    qr_code: 'QR123456789',
-    status: 'confirmed',
-    ticket_type: 'regular',
+    transaction_id: 'PAYU_MONEY_1234567',
+    booking_status: 'confirmed',
+    customer_name: 'John Doe',
+    customer_email: 'john.doe@example.com',
+    booking_date: '2024-01-15T10:00:00Z',
     created_at: '2024-01-15T10:00:00Z',
     updated_at: '2024-01-15T10:00:00Z'
   },
   {
     $id: '2',
+    user_id: 'user2',
     event_id: '2',
-    attendee_name: 'Jane Smith',
-    attendee_email: 'jane.smith@example.com',
-    attendee_phone: '+1-555-0456',
-    attendee_gender: 'female',
-    attendee_age: 32,
-    attendee_address: '456 Oak Ave, Los Angeles, CA 90210',
+    event_name: 'Music Festival 2024',
+    event_date: '2024-03-20T18:00:00Z',
+    event_location: 'Central Park, Los Angeles',
+    ticket_type: 'VIP',
+    quantity: 2,
+    amount: 398,
+    currency: 'USD',
+    payment_method: 'PayU',
     payment_status: 'completed',
-    payment_amount: 199,
-    payment_method: 'payu',
-    qr_code: 'QR987654321',
-    status: 'confirmed',
-    ticket_type: 'regular',
+    transaction_id: 'PAYU_MONEY_7654321',
+    booking_status: 'confirmed',
+    customer_name: 'Jane Smith',
+    customer_email: 'jane.smith@example.com',
+    booking_date: '2024-01-14T14:30:00Z',
     created_at: '2024-01-14T14:30:00Z',
     updated_at: '2024-01-14T14:30:00Z'
   },
   {
     $id: '3',
+    user_id: 'user3',
     event_id: '3',
-    attendee_name: 'Mike Johnson',
-    attendee_email: 'mike.johnson@example.com',
-    attendee_phone: '+1-555-0789',
-    attendee_gender: 'male',
-    attendee_age: 25,
-    attendee_address: '789 Pine St, Chicago, IL 60601',
+    event_name: 'Business Summit 2024',
+    event_date: '2024-04-10T09:00:00Z',
+    event_location: 'Business Center, Chicago',
+    ticket_type: 'Regular',
+    quantity: 1,
+    amount: 149,
+    currency: 'USD',
+    payment_method: 'PayU',
     payment_status: 'pending',
-    payment_amount: 149,
-    payment_method: 'payu',
-    qr_code: 'QR456789123',
-    status: 'pending',
-    ticket_type: 'regular',
+    transaction_id: 'PAYU_MONEY_456789123',
+    booking_status: 'pending',
+    customer_name: 'Mike Johnson',
+    customer_email: 'mike.johnson@example.com',
+    booking_date: '2024-01-13T09:15:00Z',
     created_at: '2024-01-13T09:15:00Z',
     updated_at: '2024-01-13T09:15:00Z'
   },
   {
     $id: '4',
+    user_id: 'user4',
     event_id: '4',
-    attendee_name: 'Sarah Wilson',
-    attendee_email: 'sarah.wilson@example.com',
-    attendee_phone: '+1-555-0321',
-    attendee_gender: 'female',
-    attendee_age: 29,
-    attendee_address: '321 Elm St, Miami, FL 33101',
+    event_name: 'Art Exhibition 2024',
+    event_date: '2024-05-05T14:00:00Z',
+    event_location: 'Museum of Modern Art, Miami',
+    ticket_type: 'Student',
+    quantity: 1,
+    amount: 75,
+    currency: 'USD',
+    payment_method: 'PayU',
     payment_status: 'completed',
-    payment_amount: 75,
-    payment_method: 'payu',
-    qr_code: 'QR789123456',
-    status: 'confirmed',
-    ticket_type: 'regular',
+    transaction_id: 'PAYU_MONEY_321654987',
+    booking_status: 'confirmed',
+    customer_name: 'Sarah Wilson',
+    customer_email: 'sarah.wilson@example.com',
+    booking_date: '2024-01-12T16:45:00Z',
     created_at: '2024-01-12T16:45:00Z',
     updated_at: '2024-01-12T16:45:00Z'
   }
-]
+];
 
 // Sample events for reference
 const sampleEvents = [
-  { id: '1', name: 'Tech Conference 2024' },
-  { id: '2', name: 'Summer Music Festival' },
-  { id: '3', name: 'Food & Wine Expo' },
-  { id: '4', name: 'Art Gallery Opening' }
+  { $id: '1', name: 'Tech Conference 2024' },
+  { $id: '2', name: 'Music Festival 2024' },
+  { $id: '3', name: 'Business Summit 2024' },
+  { $id: '4', name: 'Art Exhibition 2024' }
 ]
 
 export default function BookingsPage() {
@@ -148,11 +160,12 @@ export default function BookingsPage() {
 
   // Filter bookings based on search and filters
   const filteredBookings = bookings.filter(booking => {
-    const matchesSearch = booking.attendee_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         booking.attendee_email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         booking.qr_code.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesSearch = booking.customer_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         booking.customer_email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         booking.event_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         booking.transaction_id.toLowerCase().includes(searchQuery.toLowerCase())
     
-    const matchesStatus = selectedStatus === 'all' || booking.status === selectedStatus
+    const matchesStatus = selectedStatus === 'all' || booking.booking_status === selectedStatus
     const matchesPaymentStatus = selectedPaymentStatus === 'all' || booking.payment_status === selectedPaymentStatus
     const matchesEvent = selectedEvent === 'all' || booking.event_id === selectedEvent
     
@@ -166,7 +179,7 @@ export default function BookingsPage() {
 
   const handleStatusChange = async (bookingId: string, newStatus: 'confirmed' | 'cancelled') => {
     try {
-      const updatedBooking = await bookingsApi.update(bookingId, { status: newStatus })
+      const updatedBooking = await bookingsApi.update(bookingId, { booking_status: newStatus })
       if (updatedBooking) {
         setBookings(bookings.map(booking => 
           booking.$id === bookingId ? updatedBooking : booking
@@ -224,10 +237,10 @@ export default function BookingsPage() {
 
   const totalRevenue = bookings
     .filter(booking => booking.payment_status === 'completed')
-    .reduce((sum, booking) => sum + booking.payment_amount, 0)
+    .reduce((sum, booking) => sum + booking.amount, 0)
 
-  const confirmedBookings = bookings.filter(booking => booking.status === 'confirmed').length
-  const pendingBookings = bookings.filter(booking => booking.status === 'pending').length
+  const confirmedBookings = bookings.filter(booking => booking.booking_status === 'confirmed').length
+  const pendingBookings = bookings.filter(booking => booking.booking_status === 'pending').length
 
   return (
     <div className="space-y-6">

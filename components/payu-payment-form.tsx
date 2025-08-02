@@ -10,6 +10,8 @@ import { CreditCard, Loader2 } from 'lucide-react'
 interface BookingData {
   eventId: string
   eventName: string
+  eventDate?: string
+  eventLocation?: string
   attendeeName: string
   attendeeEmail: string
   attendeePhone: string
@@ -38,13 +40,19 @@ export function PayUPaymentForm({ bookingData, onPaymentComplete }: PayUPaymentF
       const paymentData = {
         amount: bookingData.amount,
         product: {
-          name: bookingData.eventName,
-          price: bookingData.amount,
-          bookingId: bookingData.bookingId,
           eventId: bookingData.eventId,
+          eventName: bookingData.eventName,
+          eventDate: bookingData.eventDate || '',
+          eventLocation: bookingData.eventLocation || '',
+          ticketType: bookingData.ticketType,
+          quantity: bookingData.quantity,
           attendeeName: bookingData.attendeeName,
           attendeeEmail: bookingData.attendeeEmail,
-          attendeePhone: bookingData.attendeePhone
+          attendeePhone: bookingData.attendeePhone,
+          attendeeGender: bookingData.attendeeGender,
+          attendeeAge: bookingData.attendeeAge,
+          attendeeAddress: bookingData.attendeeAddress,
+          bookingId: bookingData.bookingId
         },
         firstname: bookingData.attendeeName,
         email: bookingData.attendeeEmail,
@@ -127,7 +135,7 @@ export function PayUPaymentForm({ bookingData, onPaymentComplete }: PayUPaymentF
               </div>
               <div className="flex justify-between font-semibold border-t pt-1">
                 <span>Total Amount:</span>
-                <span>₹{bookingData.amount}</span>
+                <span>${bookingData.amount}</span>
               </div>
             </div>
           </div>
@@ -145,7 +153,7 @@ export function PayUPaymentForm({ bookingData, onPaymentComplete }: PayUPaymentF
                   Processing...
                 </>
               ) : (
-                `Pay ₹${bookingData.amount}`
+                `Pay $${bookingData.amount}`
               )}
             </Button>
             

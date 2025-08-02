@@ -3,65 +3,81 @@ import { ID, Query } from 'appwrite';
 
 export interface Booking {
   $id: string;
+  user_id: string;
   event_id: string;
-  attendee_name: string;
-  attendee_email: string;
-  attendee_phone: string;
-  attendee_gender: string;
-  attendee_age: number;
-  attendee_address: string;
-  payment_status: 'pending' | 'completed' | 'failed' | 'refunded';
-  payment_amount: number;
+  event_name: string;
+  event_date: string;
+  event_location: string;
+  ticket_type: string;
+  quantity: number;
+  amount: number;
+  currency: string;
   payment_method: string;
-  qr_code: string;
-  status: 'confirmed' | 'cancelled' | 'pending';
-  user_id?: string;
+  payment_status: 'pending' | 'completed' | 'failed' | 'refunded';
+  transaction_id: string;
+  booking_status: 'confirmed' | 'cancelled' | 'pending';
+  customer_name: string;
+  customer_email: string;
+  booking_date: string;
+  // Legacy fields for backward compatibility
+  attendee_name?: string;
+  attendee_email?: string;
+  attendee_phone?: string;
+  attendee_gender?: string;
+  attendee_age?: number;
+  attendee_address?: string;
+  payment_amount?: number;
+  qr_code?: string;
+  status?: string;
   session_id?: string;
   notes?: string;
-  ticket_type: string;
   discount_code?: string;
   discount_amount?: number;
-  created_at?: string; // Made optional since Appwrite handles this
-  updated_at?: string; // Made optional since Appwrite handles this
+  created_at?: string;
+  updated_at?: string;
 }
 
 // Sample data for fallback
 const sampleBookings: Booking[] = [
   {
     $id: '1',
-    event_id: '1',
-    attendee_name: 'John Doe',
-    attendee_email: 'john.doe@example.com',
-    attendee_phone: '+1-555-0123',
-    attendee_gender: 'male',
-    attendee_age: 28,
-    attendee_address: '123 Main St, New York, NY 10001',
-    payment_status: 'completed',
-    payment_amount: 299,
-    payment_method: 'stripe',
-    qr_code: 'QR123456789',
-    status: 'confirmed',
     user_id: 'user1',
-    ticket_type: 'regular',
+    event_id: '1',
+    event_name: 'Tech Conference 2024',
+    event_date: '2024-02-15T10:00:00Z',
+    event_location: 'Convention Center, New York',
+    ticket_type: 'Regular',
+    quantity: 1,
+    amount: 299,
+    currency: 'USD',
+    payment_method: 'PayU',
+    payment_status: 'completed',
+    transaction_id: 'PAYU_MONEY_1234567',
+    booking_status: 'confirmed',
+    customer_name: 'John Doe',
+    customer_email: 'john.doe@example.com',
+    booking_date: '2024-01-15T10:00:00Z',
     created_at: '2024-01-15T10:00:00Z',
     updated_at: '2024-01-15T10:00:00Z'
   },
   {
     $id: '2',
-    event_id: '2',
-    attendee_name: 'Jane Smith',
-    attendee_email: 'jane.smith@example.com',
-    attendee_phone: '+1-555-0456',
-    attendee_gender: 'female',
-    attendee_age: 32,
-    attendee_address: '456 Oak Ave, Los Angeles, CA 90210',
-    payment_status: 'completed',
-    payment_amount: 199,
-    payment_method: 'stripe',
-    qr_code: 'QR987654321',
-    status: 'confirmed',
     user_id: 'user2',
-    ticket_type: 'regular',
+    event_id: '2',
+    event_name: 'Music Festival 2024',
+    event_date: '2024-03-20T18:00:00Z',
+    event_location: 'Central Park, Los Angeles',
+    ticket_type: 'VIP',
+    quantity: 2,
+    amount: 398,
+    currency: 'USD',
+    payment_method: 'PayU',
+    payment_status: 'completed',
+    transaction_id: 'PAYU_MONEY_7654321',
+    booking_status: 'confirmed',
+    customer_name: 'Jane Smith',
+    customer_email: 'jane.smith@example.com',
+    booking_date: '2024-01-14T14:30:00Z',
     created_at: '2024-01-14T14:30:00Z',
     updated_at: '2024-01-14T14:30:00Z'
   }
@@ -161,12 +177,12 @@ export const bookingsApi = {
       const response = await databases.listDocuments(
         databaseId,
         collections.bookings,
-        [Query.equal('status', status)]
+        [Query.equal('booking_status', status)]
       );
       return response.documents as unknown as Booking[];
     } catch (error) {
       console.warn('Appwrite not accessible, using sample data:', error);
-      return sampleBookings.filter(booking => booking.status === status);
+      return sampleBookings.filter(booking => booking.booking_status === status);
     }
   },
 
@@ -189,14 +205,15 @@ export const bookingsApi = {
       const response = await databases.listDocuments(
         databaseId,
         collections.bookings,
-        [Query.search('attendee_name', query)]
+        [Query.search('customer_name', query)]
       );
       return response.documents as unknown as Booking[];
     } catch (error) {
       console.warn('Appwrite not accessible, using sample data:', error);
       return sampleBookings.filter(booking => 
-        booking.attendee_name.toLowerCase().includes(query.toLowerCase()) ||
-        booking.attendee_email.toLowerCase().includes(query.toLowerCase())
+        booking.customer_name.toLowerCase().includes(query.toLowerCase()) ||
+        booking.customer_email.toLowerCase().includes(query.toLowerCase()) ||
+        booking.event_name.toLowerCase().includes(query.toLowerCase())
       );
     }
   },
@@ -209,20 +226,20 @@ export const bookingsApi = {
         [Query.equal('payment_status', 'completed')]
       );
       const bookings = response.documents as unknown as Booking[];
-      return bookings.reduce((total, booking) => total + booking.payment_amount, 0);
+      return bookings.reduce((total, booking) => total + booking.amount, 0);
     } catch (error) {
       console.warn('Appwrite not accessible, using sample data:', error);
       return sampleBookings
         .filter(booking => booking.payment_status === 'completed')
-        .reduce((total, booking) => total + booking.payment_amount, 0);
+        .reduce((total, booking) => total + booking.amount, 0);
     }
   },
 
   async getStatistics() {
     try {
       const allBookings = await this.getAll();
-      const confirmedBookings = allBookings.filter(b => b.status === 'confirmed');
-      const pendingBookings = allBookings.filter(b => b.status === 'pending');
+      const confirmedBookings = allBookings.filter(b => b.booking_status === 'confirmed');
+      const pendingBookings = allBookings.filter(b => b.booking_status === 'pending');
       const totalRevenue = await this.getTotalRevenue();
 
       return {

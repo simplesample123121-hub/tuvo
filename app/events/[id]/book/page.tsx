@@ -282,6 +282,8 @@ export default function BookingPage({ params }: BookingPageProps) {
                       bookingData={{
                         eventId: event.$id,
                         eventName: event.name,
+                        eventDate: event.date,
+                        eventLocation: event.location,
                         attendeeName: bookingData.attendee.name,
                         attendeeEmail: bookingData.attendee.email,
                         attendeePhone: bookingData.attendee.phone,
@@ -391,16 +393,16 @@ export default function BookingPage({ params }: BookingPageProps) {
               <CardContent className="space-y-3">
                 <div className="flex justify-between">
                   <span>Ticket Price</span>
-                  <span>₹{event.price}</span>
+                  <span>${event.price}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Service Fee</span>
-                  <span>₹0.00</span>
+                  <span>$0.00</span>
                 </div>
                 <div className="border-t pt-2">
                   <div className="flex justify-between font-semibold">
                     <span>Total</span>
-                    <span>₹{event.price}</span>
+                    <span>${event.price}</span>
                   </div>
                 </div>
                 <div className="text-xs text-muted-foreground">
