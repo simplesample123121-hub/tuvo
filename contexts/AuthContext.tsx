@@ -116,17 +116,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error('Error loading user profile:', error);
       
-      // Fallback to sample user data for development
-      console.log('Using sample user data due to permission/schema issues');
-      const sampleUser: User = {
-        $id: userId,
-        email: 'user@example.com',
-        name: 'Sample User',
-        role: 'user',
-        status: 'active',
-        profile: JSON.stringify({}) // Convert to string for Appwrite
-      };
-      setUser(sampleUser);
+      // Don't set a fallback user - let the user be null if there's an error
+      // This prevents showing incorrect user data
+      setUser(null);
     }
   };
 
@@ -219,19 +211,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string): Promise<{ success: boolean; message: string }> => {
     try {
-      // First, try to get current session to see if user is already logged in
+      // Clear any existing session first
       try {
-        const currentSession = await account.get();
-        console.log('User already logged in:', currentSession.email);
-        // If we get here, user is already logged in
-        await loadUserProfile(currentSession.$id);
-        return { success: true, message: 'Already logged in' };
+        await account.deleteSession('current');
       } catch (sessionError) {
-        // No active session, proceed with login
-        console.log('No active session, proceeding with login');
+        // No active session to delete, that's fine
+        console.log('No active session to delete');
       }
 
-      // Create new session
+      // Create new session with the provided credentials
       await account.createEmailSession(email, password);
       const currentUser = await account.get();
       await loadUserProfile(currentUser.$id);

@@ -9,9 +9,7 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useAuth } from '@/contexts/AuthContext'
-import { Eye, EyeOff, Loader2, Crown, User } from 'lucide-react'
-import { AdminLogin } from '@/components/admin-login'
-import { BhanuAdminLogin } from '@/components/bhanu-admin-login'
+import { Eye, EyeOff, Loader2 } from 'lucide-react'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -23,8 +21,6 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [showAdminLogin, setShowAdminLogin] = useState(false)
-  const [showBhanuLogin, setShowBhanuLogin] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -47,70 +43,6 @@ export default function LoginPage() {
       ...prev,
       [e.target.name]: e.target.value
     }))
-  }
-
-  if (showAdminLogin) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8">
-          <div className="text-center">
-            <div className="mx-auto h-12 w-12 rounded-lg bg-primary flex items-center justify-center">
-              <Crown className="h-6 w-6 text-primary-foreground" />
-            </div>
-            <h2 className="mt-6 text-3xl font-bold text-gray-900 dark:text-white">
-              Admin Access
-            </h2>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-              Quick admin login
-            </p>
-          </div>
-
-          <AdminLogin />
-
-          <div className="text-center">
-            <Button 
-              variant="outline" 
-              onClick={() => setShowAdminLogin(false)}
-              className="text-sm"
-            >
-              ← Back to Regular Login
-            </Button>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (showBhanuLogin) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8">
-          <div className="text-center">
-            <div className="mx-auto h-12 w-12 rounded-lg bg-primary flex items-center justify-center">
-              <User className="h-6 w-6 text-primary-foreground" />
-            </div>
-            <h2 className="mt-6 text-3xl font-bold text-gray-900 dark:text-white">
-              Bhanu Admin Access
-            </h2>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-              Quick login for Bhanu
-            </p>
-          </div>
-
-          <BhanuAdminLogin />
-
-          <div className="text-center">
-            <Button 
-              variant="outline" 
-              onClick={() => setShowBhanuLogin(false)}
-              className="text-sm"
-            >
-              ← Back to Regular Login
-            </Button>
-          </div>
-        </div>
-      </div>
-    )
   }
 
   return (
@@ -221,39 +153,6 @@ export default function LoginPage() {
                   'Sign in'
                 )}
               </Button>
-
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">
-                    Or
-                  </span>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => setShowAdminLogin(true)}
-                >
-                  <Crown className="mr-2 h-4 w-4" />
-                  Admin Login
-                </Button>
-
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => setShowBhanuLogin(true)}
-                >
-                  <User className="mr-2 h-4 w-4" />
-                  Bhanu Admin Login
-                </Button>
-              </div>
 
               <div className="text-center">
                 <p className="text-sm text-gray-600 dark:text-gray-400">
