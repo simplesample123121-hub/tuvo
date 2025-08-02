@@ -44,8 +44,7 @@ export async function POST(request: NextRequest) {
           <input type="hidden" name="phone" value="${mobile}" />
           <input type="hidden" name="surl" value="${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/payment/verify/${data.txnid}" />
           <input type="hidden" name="furl" value="${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/payment/verify/${data.txnid}" />
-          <input type="hidden" name="hash" value="${data.hash}" />
-          <input type="hidden" name="mode" value="TEST" />
+                     <input type="hidden" name="hash" value="${data.hash}" />
         </form>
         <script>
           document.getElementById('payment_post').submit();
