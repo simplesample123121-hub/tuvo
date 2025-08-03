@@ -1,37 +1,86 @@
 "use client"
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import EventCard from '@/components/event-card'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { sampleEvents, categories } from '@/lib/sample-data'
-import { isEventOngoing, isEventUpcoming } from '@/lib/utils'
+import { isEventOngoing, isEventUpcoming, logMobileInfo } from '@/lib/utils'
 import { Search, Filter } from 'lucide-react'
 
 export function EventDiscovery() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [activeTab, setActiveTab] = useState('upcoming')
+  const [isClient, setIsClient] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  // Filter and categorize events
+  // Ensure component is mounted on client
+  useEffect(() => {
+    setIsClient(true)
+    // Log mobile debug info
+    logMobileInfo()
+  }, [])
+
+  // Filter and categorize events with error handling
   const filteredEvents = useMemo(() => {
-    let filtered = sampleEvents.filter(event => {
-      const matchesSearch = event.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           event.venue.toLowerCase().includes(searchQuery.toLowerCase())
+    try {
+      // Limit initial results on mobile for better performance
+      const maxInitialResults = typeof window !== 'undefined' && window.innerWidth < 768 ? 6 : sampleEvents.length
       
-      const matchesCategory = selectedCategory === 'all' || event.category === selectedCategory
-      
-      return matchesSearch && matchesCategory
-    })
+      let filtered = sampleEvents.slice(0, maxInitialResults).filter(event => {
+        const matchesSearch = event.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                             event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                             event.venue.toLowerCase().includes(searchQuery.toLowerCase())
+        
+        const matchesCategory = selectedCategory === 'all' || event.category === selectedCategory
+        
+        return matchesSearch && matchesCategory
+      })
 
-    // Categorize events by status
-    const ongoing = filtered.filter(event => isEventOngoing(event.date, event.time))
-    const upcoming = filtered.filter(event => isEventUpcoming(event.date, event.time))
+      // Categorize events by status
+      const ongoing = filtered.filter(event => isEventOngoing(event.date, event.time))
+      const upcoming = filtered.filter(event => isEventUpcoming(event.date, event.time))
 
-    return { ongoing, upcoming }
+      return { ongoing, upcoming }
+    } catch (err) {
+      console.error('Error filtering events:', err)
+      setError('Failed to load events')
+      return { ongoing: [], upcoming: [] }
+    }
   }, [searchQuery, selectedCategory])
+
+  // Don't render until client-side
+  if (!isClient) {
+    return (
+      <section className="py-24 bg-gray-50 dark:bg-gray-900">
+        <div className="container px-4 mx-auto">
+          <div className="text-center">
+            <p className="text-lg text-muted-foreground">Loading events...</p>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  if (error) {
+    return (
+      <section className="py-24 bg-gray-50 dark:bg-gray-900">
+        <div className="container px-4 mx-auto">
+          <div className="text-center">
+            <p className="text-lg text-red-600">{error}</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="mt-4 px-4 py-2 bg-primary text-white rounded-md"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section className="py-24 bg-gray-50 dark:bg-gray-900">

@@ -85,3 +85,38 @@ export const getUserProfile = (profileString?: string): any => {
     return null;
   }
 }; 
+
+// Mobile detection utilities
+export const isMobile = (): boolean => {
+  if (typeof window === 'undefined') return false
+  return window.innerWidth < 768
+}
+
+export const isMobileSafari = (): boolean => {
+  if (typeof window === 'undefined') return false
+  const userAgent = window.navigator.userAgent
+  return /iPad|iPhone|iPod/.test(userAgent) && /Safari/.test(userAgent) && !/Chrome/.test(userAgent)
+}
+
+export const isMobileChrome = (): boolean => {
+  if (typeof window === 'undefined') return false
+  const userAgent = window.navigator.userAgent
+  return /Android/.test(userAgent) && /Chrome/.test(userAgent)
+}
+
+// Debug logging for mobile issues
+export const logMobileInfo = (): void => {
+  if (typeof window === 'undefined') return
+  
+  console.log('Mobile Debug Info:', {
+    userAgent: window.navigator.userAgent,
+    viewport: {
+      width: window.innerWidth,
+      height: window.innerHeight,
+      devicePixelRatio: window.devicePixelRatio
+    },
+    isMobile: isMobile(),
+    isMobileSafari: isMobileSafari(),
+    isMobileChrome: isMobileChrome()
+  })
+} 

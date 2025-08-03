@@ -8,8 +8,8 @@
   "/auth/register/page": "app/auth/register/page.js",
   "/auth/verify/page": "app/auth/verify/page.js",
   "/bhanu-admin-setup/page": "app/bhanu-admin-setup/page.js",
-  "/contact/page": "app/contact/page.js",
   "/dashboard/page": "app/dashboard/page.js",
+  "/contact/page": "app/contact/page.js",
   "/events/[id]/book/page": "app/events/[id]/book/page.js",
   "/events/[id]/page": "app/events/[id]/page.js",
   "/events/page": "app/events/page.js",
@@ -20,9 +20,9 @@
   "/payment/test/page": "app/payment/test/page.js",
   "/profile/page": "app/profile/page.js",
   "/admin/analytics/page": "app/admin/analytics/page.js",
+  "/admin/page": "app/admin/page.js",
   "/admin/bookings/page": "app/admin/bookings/page.js",
   "/admin/events/page": "app/admin/events/page.js",
   "/admin/settings/page": "app/admin/settings/page.js",
-  "/admin/users/page": "app/admin/users/page.js",
-  "/admin/page": "app/admin/page.js"
+  "/admin/users/page": "app/admin/users/page.js"
 }
