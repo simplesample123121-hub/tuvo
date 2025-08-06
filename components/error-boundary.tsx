@@ -1,6 +1,9 @@
 "use client"
 
 import React from 'react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { AlertTriangle, RefreshCw } from 'lucide-react'
 
 interface ErrorBoundaryState {
   hasError: boolean
@@ -38,21 +41,31 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
       }
 
       return (
-        <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center p-4">
-          <div className="text-center max-w-md">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-              Something went wrong
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              We're sorry, but something unexpected happened. Please try refreshing the page.
-            </p>
-            <button
-              onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
-            >
-              Refresh Page
-            </button>
-          </div>
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
+          <Card className="max-w-md bg-white/10 backdrop-blur-sm border-white/20">
+            <CardHeader className="text-center">
+              <div className="flex justify-center mb-4">
+                <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center">
+                  <AlertTriangle className="w-8 h-8 text-red-400" />
+                </div>
+              </div>
+              <CardTitle className="text-2xl font-bold text-white">
+                Something went wrong
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-center">
+              <p className="text-white/70 mb-6">
+                We're sorry, but something unexpected happened. Please try refreshing the page.
+              </p>
+              <Button
+                onClick={() => window.location.reload()}
+                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Refresh Page
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       )
     }

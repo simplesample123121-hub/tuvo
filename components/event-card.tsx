@@ -7,6 +7,7 @@ import { Calendar, Clock, MapPin, Users, Star, DollarSign } from 'lucide-react'
 import Link from 'next/link'
 import { Event } from '@/lib/api/events'
 import Image from 'next/image'
+import { AuthCheck } from '@/components/auth-check'
 
 interface EventCardProps {
   event: Event
@@ -81,11 +82,13 @@ export default function EventCard({ event, showActions = true }: EventCardProps)
           
           {showActions && (
             <div className="flex gap-2">
-              <Button asChild size="sm">
-                <Link href={`/events/${event.$id || ''}`}>
-                  View Details
-                </Link>
-              </Button>
+              <AuthCheck>
+                <Button asChild size="sm">
+                  <Link href={`/events/${event.$id || ''}`}>
+                    View Details
+                  </Link>
+                </Button>
+              </AuthCheck>
             </div>
           )}
         </div>

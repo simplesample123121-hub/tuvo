@@ -1,6 +1,9 @@
 "use client"
 
 import { useEffect, useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { X } from 'lucide-react'
 
 export function MobileDebug() {
   const [debugInfo, setDebugInfo] = useState<any>(null)
@@ -49,17 +52,25 @@ export function MobileDebug() {
   }
 
   return (
-    <div className="fixed bottom-4 right-4 bg-black text-white p-4 rounded-lg text-xs max-w-xs z-50">
-      <h3 className="font-bold mb-2">Mobile Debug</h3>
-      <pre className="whitespace-pre-wrap overflow-auto">
-        {JSON.stringify(debugInfo, null, 2)}
-      </pre>
-      <button 
-        onClick={() => setIsVisible(false)}
-        className="mt-2 px-2 py-1 bg-red-600 text-white rounded text-xs"
-      >
-        Close
-      </button>
-    </div>
+    <Card className="fixed bottom-4 right-4 max-w-xs z-50 bg-slate-900 border-slate-700">
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-sm text-white">Mobile Debug</CardTitle>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsVisible(false)}
+            className="h-6 w-6 text-white hover:text-red-400"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <pre className="whitespace-pre-wrap overflow-auto text-xs text-white/80">
+          {JSON.stringify(debugInfo, null, 2)}
+        </pre>
+      </CardContent>
+    </Card>
   )
 } 

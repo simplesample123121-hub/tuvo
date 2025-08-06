@@ -1,60 +1,69 @@
 import Link from 'next/link'
 import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 export function Footer() {
   return (
-    <footer className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
+    <footer className="border-t bg-muted/30">
       <div className="container px-4 py-16 mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Company Info */}
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">E</span>
+                <span className="text-primary-foreground font-bold text-sm">T</span>
               </div>
-              <span className="font-bold text-xl">EventHub</span>
+              <span className="font-bold text-xl">Tuvo</span>
             </div>
-            <p className="text-muted-foreground dark:text-gray-400">
+            <p className="text-muted-foreground">
               The modern platform for discovering and booking amazing events. 
               Secure, fast, and reliable ticket booking for all your favorite events.
             </p>
             <div className="flex space-x-4">
-              <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                <Facebook className="h-5 w-5" />
-              </Link>
-              <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                <Twitter className="h-5 w-5" />
-              </Link>
-              <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                <Instagram className="h-5 w-5" />
-              </Link>
-              <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                <Linkedin className="h-5 w-5" />
-              </Link>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <Link href="#">
+                  <Facebook className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <Link href="#">
+                  <Twitter className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <Link href="#">
+                  <Instagram className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <Link href="#">
+                  <Linkedin className="h-4 w-4" />
+                </Link>
+              </Button>
             </div>
           </div>
 
           {/* Quick Links */}
           <div className="space-y-4">
-            <h3 className="font-semibold">Quick Links</h3>
+            <h3 className="font-semibold text-foreground">Quick Links</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/events" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link href="/events" className="text-muted-foreground hover:text-foreground transition-colors">
                   Browse Events
                 </Link>
               </li>
               <li>
-                <Link href="/about" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link href="/about" className="text-muted-foreground hover:text-foreground transition-colors">
                   About Us
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link href="/contact" className="text-muted-foreground hover:text-foreground transition-colors">
                   Contact
                 </Link>
               </li>
               <li>
-                <Link href="/help" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link href="/help" className="text-muted-foreground hover:text-foreground transition-colors">
                   Help Center
                 </Link>
               </li>
@@ -63,25 +72,25 @@ export function Footer() {
 
           {/* Categories */}
           <div className="space-y-4">
-            <h3 className="font-semibold">Event Categories</h3>
+            <h3 className="font-semibold text-foreground">Event Categories</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/events?category=technology" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link href="/events?category=technology" className="text-muted-foreground hover:text-foreground transition-colors">
                   Technology
                 </Link>
               </li>
               <li>
-                <Link href="/events?category=music" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link href="/events?category=music" className="text-muted-foreground hover:text-foreground transition-colors">
                   Music
                 </Link>
               </li>
               <li>
-                <Link href="/events?category=business" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link href="/events?category=business" className="text-muted-foreground hover:text-foreground transition-colors">
                   Business
                 </Link>
               </li>
               <li>
-                <Link href="/events?category=sports" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link href="/events?category=sports" className="text-muted-foreground hover:text-foreground transition-colors">
                   Sports
                 </Link>
               </li>
@@ -90,11 +99,11 @@ export function Footer() {
 
           {/* Contact Info */}
           <div className="space-y-4">
-            <h3 className="font-semibold">Contact Info</h3>
+            <h3 className="font-semibold text-foreground">Contact Info</h3>
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Mail className="h-4 w-4" />
-                <span>hello@eventhub.com</span>
+                <span>hello@tuvo.com</span>
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Phone className="h-4 w-4" />
@@ -110,16 +119,16 @@ export function Footer() {
 
         <div className="border-t mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-muted-foreground text-sm">
-            © 2024 EventHub. All rights reserved.
+            © 2024 Tuvo. All rights reserved.
           </p>
           <div className="flex space-x-6 mt-4 md:mt-0">
-            <Link href="/privacy" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+            <Link href="/privacy" className="text-muted-foreground hover:text-foreground transition-colors text-sm">
               Privacy Policy
             </Link>
-            <Link href="/terms" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+            <Link href="/terms" className="text-muted-foreground hover:text-foreground transition-colors text-sm">
               Terms of Service
             </Link>
-            <Link href="/cookies" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+            <Link href="/cookies" className="text-muted-foreground hover:text-foreground transition-colors text-sm">
               Cookie Policy
             </Link>
           </div>

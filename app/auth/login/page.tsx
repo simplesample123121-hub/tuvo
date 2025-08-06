@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -13,7 +13,8 @@ import { Eye, EyeOff, Loader2 } from 'lucide-react'
 
 export default function LoginPage() {
   const router = useRouter()
-  const { login } = useAuth()
+  const searchParams = useSearchParams()
+  const { login, isAuthenticated } = useAuth()
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -21,6 +22,16 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  // Get redirect URL from query parameters
+  const redirectUrl = searchParams.get('redirect') || '/dashboard'
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push(redirectUrl)
+    }
+  }, [isAuthenticated, router, redirectUrl])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -30,7 +41,7 @@ export default function LoginPage() {
     const result = await login(formData.email, formData.password)
     
     if (result.success) {
-      router.push('/dashboard')
+      router.push(redirectUrl)
     } else {
       setError(result.message)
     }

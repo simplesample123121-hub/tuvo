@@ -1,4 +1,5 @@
 import { Shield, CreditCard, Smartphone, Clock, Users, Star } from 'lucide-react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 const features = [
   {
@@ -35,13 +36,17 @@ const features = [
 
 export function Features() {
   return (
-    <section className="py-24 bg-gray-50 dark:bg-gray-900">
-      <div className="container px-4 mx-auto">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Why Choose EventHub?
+    <section className="py-24 bg-background">
+      <div className="container mx-auto px-4">
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-muted rounded-md text-sm text-muted-foreground mb-6">
+            <Star className="w-4 h-4" />
+            <span>Why Choose Tuvo?</span>
+          </div>
+          <h2 className="text-4xl font-bold text-foreground mb-6">
+            Features That Set Us Apart
           </h2>
-          <p className="text-lg text-muted-foreground dark:text-gray-400 max-w-2xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             We make event booking simple, secure, and enjoyable. 
             Here's what sets us apart from the competition.
           </p>
@@ -49,13 +54,21 @@ export function Features() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => (
-            <div key={index} className="text-center p-8 bg-white dark:bg-gray-800 rounded-xl border-0 shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
-              <div className="flex items-center justify-center w-16 h-16 mx-auto mb-6 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
-                <feature.icon className="w-8 h-8 text-blue-600" />
-              </div>
-              <h3 className="text-xl font-semibold mb-3 text-gray-900 dark:text-white">{feature.title}</h3>
-              <p className="text-gray-600 dark:text-gray-400 leading-relaxed">{feature.description}</p>
-            </div>
+            <Card key={index} className="group hover:shadow-md transition-shadow">
+              <CardHeader className="text-center pb-4">
+                <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-primary rounded-lg">
+                  <feature.icon className="w-6 h-6 text-primary-foreground" />
+                </div>
+                <CardTitle className="text-xl font-semibold">
+                  {feature.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <CardDescription className="leading-relaxed text-center">
+                  {feature.description}
+                </CardDescription>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </div>

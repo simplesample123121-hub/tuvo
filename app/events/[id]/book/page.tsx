@@ -11,6 +11,7 @@ import { ArrowLeft, Calendar, Clock, MapPin, Users, CreditCard } from 'lucide-re
 import Link from 'next/link'
 import { eventsApi, Event } from '@/lib/api/events'
 import { PayUPaymentForm } from '@/components/payu-payment-form'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface BookingPageProps {
   params: Promise<{
@@ -23,6 +24,7 @@ type BookingStep = 'attendee' | 'payment' | 'confirmation'
 export default function BookingPage({ params }: BookingPageProps) {
   const router = useRouter()
   const { id } = use(params)
+  const { isAuthenticated, loading: authLoading } = useAuth()
   const [event, setEvent] = useState<Event | null>(null)
   const [loading, setLoading] = useState(true)
   const [currentStep, setCurrentStep] = useState<BookingStep>('attendee')
@@ -38,6 +40,13 @@ export default function BookingPage({ params }: BookingPageProps) {
     },
     payment: null as any
   })
+
+  // Check authentication first
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.push('/auth/login?redirect=' + encodeURIComponent(`/events/${id}/book`))
+    }
+  }, [isAuthenticated, authLoading, router, id])
 
   useEffect(() => {
     const loadEvent = async () => {
@@ -69,6 +78,21 @@ export default function BookingPage({ params }: BookingPageProps) {
     }
     setBookingId(generateBookingId())
   }, [])
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Checking authentication...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!isAuthenticated) {
+    return null // Will redirect to login
+  }
 
   if (loading) {
     return (

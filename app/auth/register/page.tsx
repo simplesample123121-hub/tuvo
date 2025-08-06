@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -13,7 +13,8 @@ import { Eye, EyeOff, Loader2, CheckCircle } from 'lucide-react'
 
 export default function RegisterPage() {
   const router = useRouter()
-  const { register } = useAuth()
+  const searchParams = useSearchParams()
+  const { register, isAuthenticated } = useAuth()
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -25,6 +26,16 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+
+  // Get redirect URL from query parameters
+  const redirectUrl = searchParams.get('redirect') || '/dashboard'
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push(redirectUrl)
+    }
+  }, [isAuthenticated, router, redirectUrl])
 
   const validateForm = () => {
     if (formData.password.length < 8) {
@@ -60,9 +71,9 @@ export default function RegisterPage() {
     const result = await register(formData.name, formData.email, formData.password)
     
     if (result.success) {
-      setSuccess('Registration successful! Redirecting to dashboard...')
+      setSuccess('Registration successful! Redirecting...')
       setTimeout(() => {
-        router.push('/dashboard')
+        router.push(redirectUrl)
       }, 2000)
     } else {
       setError(result.message)

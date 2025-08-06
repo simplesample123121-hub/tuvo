@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Calendar, Clock, MapPin, Users, Star, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { eventsApi, Event } from '@/lib/api/events'
+import { AuthCheck } from '@/components/auth-check'
 
 interface EventDetailsPageProps {
   params: Promise<{
@@ -230,11 +231,13 @@ export default function EventDetailsPage({ params }: EventDetailsPageProps) {
                   </div>
                 </div>
 
-                <Button asChild className="w-full" size="lg">
-                  <Link href={`/events/${event.$id}/book`}>
-                    Book Now
-                  </Link>
-                </Button>
+                <AuthCheck>
+                  <Button asChild className="w-full" size="lg">
+                    <Link href={`/events/${event.$id}/book`}>
+                      Book Now
+                    </Link>
+                  </Button>
+                </AuthCheck>
 
                 <p className="text-xs text-muted-foreground text-center">
                                       Secure payment processing

@@ -8,12 +8,12 @@ import { AuthProvider } from '@/contexts/AuthContext'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'EventHub - Modern Ticket Booking Platform',
+  title: 'Tuvo - Modern Event Booking Platform',
   description: 'Discover and book tickets for the best events in your area. From technology conferences to music festivals, find your next unforgettable experience.',
   keywords: 'event tickets, booking platform, concerts, conferences, festivals',
-  authors: [{ name: 'EventHub Team' }],
+  authors: [{ name: 'Tuvo Team' }],
   openGraph: {
-    title: 'EventHub - Modern Ticket Booking Platform',
+    title: 'Tuvo - Modern Event Booking Platform',
     description: 'Discover and book tickets for the best events in your area.',
     type: 'website',
   },
@@ -34,7 +34,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={`${inter.className} bg-background text-foreground antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
