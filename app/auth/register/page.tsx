@@ -120,7 +120,7 @@ function RegisterContent() {
           <CardHeader>
             <CardTitle>Register</CardTitle>
             <CardDescription>
-              Create your account to get started
+              Create your account to get started (Supabase Auth)
             </CardDescription>
           </CardHeader>
           <CardContent>

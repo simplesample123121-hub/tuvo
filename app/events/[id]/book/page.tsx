@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ArrowLeft, Calendar, Clock, MapPin, Users, CreditCard } from 'lucide-react'
+import { formatPrice } from '@/lib/utils'
 import Link from 'next/link'
 import { eventsApi, Event } from '@/lib/api/events'
 import { PayUPaymentForm } from '@/components/payu-payment-form'
@@ -350,7 +351,7 @@ export default function BookingPage({ params }: BookingPageProps) {
                     <p><strong>Date:</strong> {formatDate(event.date)}</p>
                     <p><strong>Attendee:</strong> {bookingData.attendee.name}</p>
                     <p><strong>Email:</strong> {bookingData.attendee.email}</p>
-                    <p><strong>Amount:</strong> ₹{event.price}</p>
+                    <p><strong>Amount:</strong> {formatPrice(event.price || 0, 'INR')}</p>
                   </div>
                   <div className="flex gap-4">
                     <Button onClick={goToDashboard} className="flex-1">
@@ -400,7 +401,7 @@ export default function BookingPage({ params }: BookingPageProps) {
                 <div className="border-t pt-4">
                   <div className="flex justify-between items-center">
                     <span className="text-lg font-semibold">Total Amount</span>
-                    <span className="text-2xl font-bold text-primary">₹{event.price}</span>
+                    <span className="text-2xl font-bold text-primary">{formatPrice(event.price || 0, 'INR')}</span>
                   </div>
                 </div>
               </CardContent>
@@ -417,16 +418,16 @@ export default function BookingPage({ params }: BookingPageProps) {
               <CardContent className="space-y-3">
                 <div className="flex justify-between">
                   <span>Ticket Price</span>
-                  <span>${event.price}</span>
+                  <span>{formatPrice(event.price || 0, 'INR')}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Service Fee</span>
-                  <span>$0.00</span>
+                  <span>{formatPrice(0, 'INR')}</span>
                 </div>
                 <div className="border-t pt-2">
                   <div className="flex justify-between font-semibold">
                     <span>Total</span>
-                    <span>${event.price}</span>
+                    <span>{formatPrice(event.price || 0, 'INR')}</span>
                   </div>
                 </div>
                 <div className="text-xs text-muted-foreground">

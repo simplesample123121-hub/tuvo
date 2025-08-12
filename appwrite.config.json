@@ -165,26 +165,42 @@
                 {
                     "key": "name_index",
                     "type": "key",
-                    "attributes": ["name"],
-                    "orders": ["ASC"]
+                    "attributes": [
+                        "name"
+                    ],
+                    "orders": [
+                        "ASC"
+                    ]
                 },
                 {
                     "key": "category_index",
                     "type": "key",
-                    "attributes": ["category"],
-                    "orders": ["ASC"]
+                    "attributes": [
+                        "category"
+                    ],
+                    "orders": [
+                        "ASC"
+                    ]
                 },
                 {
                     "key": "status_index",
                     "type": "key",
-                    "attributes": ["status"],
-                    "orders": ["ASC"]
+                    "attributes": [
+                        "status"
+                    ],
+                    "orders": [
+                        "ASC"
+                    ]
                 },
                 {
                     "key": "date_index",
                     "type": "key",
-                    "attributes": ["date"],
-                    "orders": ["ASC"]
+                    "attributes": [
+                        "date"
+                    ],
+                    "orders": [
+                        "ASC"
+                    ]
                 }
             ],
             "enabled": true
@@ -329,26 +345,42 @@
                 {
                     "key": "event_id_index",
                     "type": "key",
-                    "attributes": ["event_id"],
-                    "orders": ["ASC"]
+                    "attributes": [
+                        "event_id"
+                    ],
+                    "orders": [
+                        "ASC"
+                    ]
                 },
                 {
                     "key": "user_id_index",
                     "type": "key",
-                    "attributes": ["user_id"],
-                    "orders": ["ASC"]
+                    "attributes": [
+                        "user_id"
+                    ],
+                    "orders": [
+                        "ASC"
+                    ]
                 },
                 {
                     "key": "status_index",
                     "type": "key",
-                    "attributes": ["status"],
-                    "orders": ["ASC"]
+                    "attributes": [
+                        "status"
+                    ],
+                    "orders": [
+                        "ASC"
+                    ]
                 },
                 {
                     "key": "payment_status_index",
                     "type": "key",
-                    "attributes": ["payment_status"],
-                    "orders": ["ASC"]
+                    "attributes": [
+                        "payment_status"
+                    ],
+                    "orders": [
+                        "ASC"
+                    ]
                 }
             ],
             "enabled": true
@@ -426,20 +458,32 @@
                 {
                     "key": "email_index",
                     "type": "key",
-                    "attributes": ["email"],
-                    "orders": ["ASC"]
+                    "attributes": [
+                        "email"
+                    ],
+                    "orders": [
+                        "ASC"
+                    ]
                 },
                 {
                     "key": "role_index",
                     "type": "key",
-                    "attributes": ["role"],
-                    "orders": ["ASC"]
+                    "attributes": [
+                        "role"
+                    ],
+                    "orders": [
+                        "ASC"
+                    ]
                 },
                 {
                     "key": "status_index",
                     "type": "key",
-                    "attributes": ["status"],
-                    "orders": ["ASC"]
+                    "attributes": [
+                        "status"
+                    ],
+                    "orders": [
+                        "ASC"
+                    ]
                 }
             ],
             "enabled": true
@@ -617,22 +661,43 @@
                 {
                     "key": "type_index",
                     "type": "key",
-                    "attributes": ["type"],
-                    "orders": ["ASC"]
+                    "attributes": [
+                        "type"
+                    ],
+                    "orders": [
+                        "ASC"
+                    ]
                 },
                 {
                     "key": "user_id_index",
                     "type": "key",
-                    "attributes": ["user_id"],
-                    "orders": ["ASC"]
+                    "attributes": [
+                        "user_id"
+                    ],
+                    "orders": [
+                        "ASC"
+                    ]
                 },
                 {
                     "key": "timestamp_index",
                     "type": "key",
-                    "attributes": ["$createdAt"],
-                    "orders": ["DESC"]
+                    "attributes": [
+                        "$createdAt"
+                    ],
+                    "orders": [
+                        "DESC"
+                    ]
                 }
             ],
+            "enabled": true
+        },
+        {
+            "$id": "689ae891002b0e2cbcdb",
+            "databaseId": "eventbooker_db",
+            "name": "My Awesome Collection",
+            "documentSecurity": true,
+            "attributes": [],
+            "indexes": [],
             "enabled": true
         }
     ]

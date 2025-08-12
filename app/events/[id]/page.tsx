@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Calendar, Clock, MapPin, Users, Star, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { eventsApi, Event } from '@/lib/api/events'
+import { formatPrice } from '@/lib/utils'
 import { AuthCheck } from '@/components/auth-check'
 
 interface EventDetailsPageProps {
@@ -56,7 +57,8 @@ export default function EventDetailsPage({ params }: EventDetailsPageProps) {
     notFound()
   }
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | undefined | null) => {
+    if (!dateString) return 'TBD'
     const date = new Date(dateString)
     return date.toLocaleDateString('en-US', {
       weekday: 'long',
@@ -66,8 +68,8 @@ export default function EventDetailsPage({ params }: EventDetailsPageProps) {
     })
   }
 
-  const formatTime = (timeString: string) => {
-    return timeString
+  const formatTime = (timeString: string | undefined | null) => {
+    return timeString || 'TBD'
   }
 
   const getStatusColor = (status: string) => {
@@ -118,8 +120,8 @@ export default function EventDetailsPage({ params }: EventDetailsPageProps) {
                 )}
               </div>
               <div className="absolute top-4 right-4">
-                <Badge className={getStatusColor(event.status)}>
-                  {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
+                <Badge className={getStatusColor(event.status || 'upcoming')}>
+                  {(event.status || 'upcoming').charAt(0).toUpperCase() + (event.status || 'upcoming').slice(1)}
                 </Badge>
               </div>
             </div>
@@ -216,7 +218,7 @@ export default function EventDetailsPage({ params }: EventDetailsPageProps) {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-2xl font-bold text-primary">${event.price}</span>
+                  <span className="text-2xl font-bold text-primary">{formatPrice(event.price || 0, 'INR')}</span>
                   <span className="text-sm text-muted-foreground">per ticket</span>
                 </div>
                 
@@ -253,12 +255,12 @@ export default function EventDetailsPage({ params }: EventDetailsPageProps) {
               <CardContent className="space-y-3">
                 <div className="flex justify-between">
                   <span>Category</span>
-                  <Badge variant="secondary">{event.category}</Badge>
+                  <Badge variant="secondary">{event.category || 'N/A'}</Badge>
                 </div>
                 <div className="flex justify-between">
                   <span>Status</span>
-                  <Badge className={getStatusColor(event.status)}>
-                    {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
+                  <Badge className={getStatusColor(event.status || 'upcoming')}>
+                    {(event.status || 'upcoming').charAt(0).toUpperCase() + (event.status || 'upcoming').slice(1)}
                   </Badge>
                 </div>
                 <div className="flex justify-between">
@@ -267,7 +269,7 @@ export default function EventDetailsPage({ params }: EventDetailsPageProps) {
                 </div>
                 <div className="flex justify-between">
                   <span>Created By</span>
-                  <span>{event.created_by}</span>
+                  <span>{event.created_by || 'N/A'}</span>
                 </div>
               </CardContent>
             </Card>

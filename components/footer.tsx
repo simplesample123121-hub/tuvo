@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { EVENT_CATEGORIES } from '@/lib/categories'
 import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -74,24 +75,19 @@ export function Footer() {
           <div className="space-y-4">
             <h3 className="font-semibold text-foreground">Event Categories</h3>
             <ul className="space-y-2">
+              {EVENT_CATEGORIES.slice(0, 6).map(cat => (
+                <li key={cat.id}>
+                  <Link 
+                    href={`/events?category=${cat.slug}`}
+                    className="text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {cat.name}
+                  </Link>
+                </li>
+              ))}
               <li>
-                <Link href="/events?category=technology" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Technology
-                </Link>
-              </li>
-              <li>
-                <Link href="/events?category=music" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Music
-                </Link>
-              </li>
-              <li>
-                <Link href="/events?category=business" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Business
-                </Link>
-              </li>
-              <li>
-                <Link href="/events?category=sports" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Sports
+                <Link href="/events" className="text-muted-foreground hover:text-foreground transition-colors">
+                  View all categories →
                 </Link>
               </li>
             </ul>

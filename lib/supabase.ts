@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -26,6 +26,7 @@ export interface Event {
 export interface Booking {
   id: string
   event_id: string
+  user_id?: string
   attendee_name: string
   attendee_email: string
   attendee_phone: string
@@ -34,8 +35,11 @@ export interface Booking {
   attendee_address: string
   payment_status: 'pending' | 'completed' | 'failed'
   payment_amount: number
+  payment_method?: string
   qr_code: string
   status: 'confirmed' | 'cancelled' | 'refunded'
+  ticket_type?: string
+  notes?: string
   created_at: string
   updated_at: string
 }
@@ -55,3 +59,15 @@ export interface AnalyticsEvent {
   metadata: any
   user_id?: string
 } 
+
+// Server client (service role) for server routes only
+export function createSupabaseServerClient(): SupabaseClient {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY
+  if (!serviceKey) {
+    throw new Error('SUPABASE_SERVICE_ROLE_KEY not configured')
+  }
+  return createClient(url, serviceKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  })
+}

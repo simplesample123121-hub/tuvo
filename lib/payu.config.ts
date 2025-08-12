@@ -101,8 +101,9 @@ export const createPayUTransaction = async ({
       firstname: firstname,
       email: email,
       phone: mobile,
-      surl: `${PAYU_CONFIG.successURL}/${txnid}`,
-      furl: `${PAYU_CONFIG.failureURL}/${txnid}`,
+      // Use API callback routes to avoid page route conflicts
+      surl: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/payu/success/${txnid}`,
+      furl: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/payu/failure/${txnid}`,
       hash: hash
     })
 

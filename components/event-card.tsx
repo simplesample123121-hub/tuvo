@@ -3,7 +3,8 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Calendar, Clock, MapPin, Users, Star, DollarSign } from 'lucide-react'
+import { Calendar, Clock, MapPin, Users, Star, IndianRupee } from 'lucide-react'
+import { formatPrice } from '@/lib/utils'
 import Link from 'next/link'
 import { Event } from '@/lib/api/events'
 import Image from 'next/image'
@@ -65,8 +66,8 @@ export default function EventCard({ event, showActions = true }: EventCardProps)
             <span>{event.available_tickets} tickets left</span>
           </div>
           <div className="flex items-center gap-2 text-sm">
-            <DollarSign className="w-4 h-4" />
-            <span>${event.price}</span>
+            <IndianRupee className="w-4 h-4" />
+            <span>{formatPrice(event.price || 0, 'INR')}</span>
           </div>
         </div>
 

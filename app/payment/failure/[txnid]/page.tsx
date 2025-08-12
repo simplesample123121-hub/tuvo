@@ -118,7 +118,12 @@ export default function PaymentFailurePage() {
     // Parse product info to get event details for retry
     if (paymentData?.productinfo) {
       try {
-        const eventData = JSON.parse(paymentData.productinfo)
+        const raw = paymentData.productinfo as string
+        const decoded = decodeURIComponent(raw.replace(/\+/g, ' '))
+          .replace(/&quot;/g, '"')
+          .replace(/&apos;/g, "'")
+          .replace(/&amp;/g, '&')
+        const eventData = JSON.parse(decoded)
         // Navigate back to booking page with event ID
         router.push(`/events/${eventData.eventId}/book`)
       } catch (e) {
@@ -205,7 +210,7 @@ Thank you.
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <p className="text-sm font-medium text-gray-500">Amount</p>
-                <p className="text-lg font-semibold">${paymentData?.amount}</p>
+             <p className="text-lg font-semibold">₹{paymentData?.amount}</p>
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500">Status</p>

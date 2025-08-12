@@ -24,8 +24,7 @@ import {
   Plus
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
-import { databases, databaseId, collections } from '@/lib/appwrite'
-import { ID, Query } from 'appwrite'
+import { supabase } from '@/lib/supabase'
 import { User } from '@/contexts/AuthContext'
 
 interface UserWithStats extends User {
@@ -52,19 +51,28 @@ export default function UsersPage() {
   const loadUsers = async () => {
     try {
       setLoading(true)
-      const response = await databases.listDocuments(databaseId, collections.users)
-      const usersData = response.documents as unknown as User[]
+      const { data: usersRows, error } = await supabase.from('users').select('*')
+      if (error) throw error
+      const usersData = (usersRows || []).map((u: any) => ({
+        $id: u.id,
+        email: u.email,
+        name: u.name,
+        role: u.role,
+        status: u.status,
+        profile: u.profile ? JSON.stringify(u.profile) : undefined,
+        created_at: u.created_at,
+        updated_at: u.updated_at,
+      })) as unknown as User[]
 
       // Get stats for each user
       const usersWithStats = await Promise.all(
         usersData.map(async (user) => {
           try {
-            const bookingsResponse = await databases.listDocuments(
-              databaseId,
-              collections.bookings,
-              [Query.equal('user_id', user.$id)]
-            )
-            const userBookings = bookingsResponse.documents
+            const { data: userBookings, error: bErr } = await supabase
+              .from('bookings')
+              .select('payment_status,payment_amount,created_at')
+              .eq('user_id', user.$id)
+            if (bErr) throw bErr
 
             const totalSpent = userBookings
               .filter((b: any) => b.payment_status === 'completed')
@@ -109,15 +117,12 @@ export default function UsersPage() {
 
   const handleUpdateUser = async (userId: string, updates: Partial<User>) => {
     try {
-      await databases.updateDocument(
-        databaseId,
-        collections.users,
-        userId,
-        {
-          ...updates,
-          updated_at: new Date().toISOString()
-        }
-      )
+        const patch: any = { ...updates }
+        const { error } = await supabase
+          .from('users')
+          .update(patch)
+          .eq('id', userId)
+        if (error) throw error
       await loadUsers()
     } catch (error) {
       console.error('Error updating user:', error)
@@ -132,7 +137,8 @@ export default function UsersPage() {
 
     if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
       try {
-        await databases.deleteDocument(databaseId, collections.users, userId)
+        const { error } = await supabase.from('users').delete().eq('id', userId)
+        if (error) throw error
         await loadUsers()
       } catch (error) {
         console.error('Error deleting user:', error)

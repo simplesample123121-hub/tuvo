@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
+import { useAuth } from '@/contexts/AuthContext'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { CreditCard, Loader2 } from 'lucide-react'
@@ -30,6 +31,7 @@ export function PayUPaymentForm({ bookingData, onPaymentComplete }: PayUPaymentF
   const [loading, setLoading] = useState(false)
   const [paymentForm, setPaymentForm] = useState('')
   const { toast } = useToast()
+  const { user } = useAuth()
 
   const handlePayment = async () => {
     try {
@@ -51,7 +53,8 @@ export function PayUPaymentForm({ bookingData, onPaymentComplete }: PayUPaymentF
           attendeeGender: bookingData.attendeeGender,
           attendeeAge: bookingData.attendeeAge,
           attendeeAddress: bookingData.attendeeAddress,
-          bookingId: bookingData.bookingId
+          bookingId: bookingData.bookingId,
+          userId: user?.$id || 'guest'
         },
         firstname: bookingData.attendeeName,
         email: bookingData.attendeeEmail,

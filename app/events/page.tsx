@@ -1,6 +1,8 @@
 "use client"
 
 import { useState, useMemo, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
+import { EVENT_CATEGORIES } from '@/lib/categories'
 import EventCard from '@/components/event-card'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -9,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import { eventsApi, Event } from '@/lib/api/events'
 
 export default function EventsPage() {
+  const searchParams = useSearchParams()
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
@@ -34,13 +37,29 @@ export default function EventsPage() {
     loadEvents()
   }, [])
 
+  // Apply category from URL query (e.g., /events?category=music)
+  useEffect(() => {
+    const categoryFromUrl = searchParams?.get('category')
+    if (categoryFromUrl) {
+      setSelectedCategory(categoryFromUrl)
+    }
+  }, [searchParams])
+
+  const normalize = (value: string | undefined) => (value || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '')
+
   const filteredEvents = useMemo(() => {
     let filtered = events.filter(event => {
-      const matchesSearch = event.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           event.venue.toLowerCase().includes(searchQuery.toLowerCase())
+      const name = event.name || ''
+      const description = event.description || ''
+      const venue = event.venue || ''
+      const matchesSearch = name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           venue.toLowerCase().includes(searchQuery.toLowerCase())
       
-      const matchesCategory = selectedCategory === 'all' || event.category === selectedCategory
+      const matchesCategory = selectedCategory === 'all' 
+        || normalize(event.category) === normalize(selectedCategory)
       
       return matchesSearch && matchesCategory
     })
@@ -49,13 +68,13 @@ export default function EventsPage() {
     filtered.sort((a, b) => {
       switch (sortBy) {
         case 'date':
-          return new Date(a.date).getTime() - new Date(b.date).getTime()
+          return new Date(a.date || 0).getTime() - new Date(b.date || 0).getTime()
         case 'price-low':
-          return a.price - b.price
+          return (a.price || 0) - (b.price || 0)
         case 'price-high':
-          return b.price - a.price
+          return (b.price || 0) - (a.price || 0)
         case 'name':
-          return a.name.localeCompare(b.name)
+          return (a.name || '').localeCompare(b.name || '')
         default:
           return 0
       }
@@ -64,7 +83,7 @@ export default function EventsPage() {
     return filtered
   }, [events, searchQuery, selectedCategory, sortBy])
 
-  const categories = ['Technology', 'Music', 'Sports', 'Business', 'Education', 'Entertainment']
+  const categories = EVENT_CATEGORIES.map(c => c.name)
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">

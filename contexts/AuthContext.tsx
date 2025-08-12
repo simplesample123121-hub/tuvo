@@ -1,15 +1,7 @@
 "use client"
 
-import { createContext, useContext, useEffect, useState } from 'react';
-import { databases, databaseId, collections } from '@/lib/appwrite';
-import { Models, Query, Client, Account, ID } from 'appwrite';
-
-// Create Appwrite client and account instance directly
-const client = new Client()
-    .setEndpoint('https://nyc.cloud.appwrite.io/v1')
-    .setProject('688d133a00190cb1d93c');
-
-const account = new Account(client);
+import { createContext, useContext, useEffect, useState } from 'react'
+import { supabase } from '@/lib/supabase'
 
 export interface User {
   $id: string;
@@ -49,16 +41,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const checkExistingSession = async () => {
     try {
-      const currentUser = await account.get();
-      console.log('Found existing session for:', currentUser.email);
-      await loadUserProfile(currentUser.$id);
-    } catch (error) {
-      console.log('No existing session found');
-      setUser(null);
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) { setUser(null); return }
+      const { data: { user: authUser } } = await supabase.auth.getUser()
+      if (!authUser) { setUser(null); return }
+      await loadUserProfile(authUser)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   useEffect(() => {
     const initializeApp = async () => {
@@ -82,36 +73,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const loadUserProfile = async (userId: string) => {
+  const loadUserProfile = async (authUser: any) => {
     try {
-      // Try to get user profile from our database
-      const response = await databases.listDocuments(
-        databaseId,
-        collections.users,
-        [Query.equal('$id', userId)]
-      );
-      
-      if (response.documents.length > 0) {
-        setUser(response.documents[0] as unknown as User);
+      const email = authUser.email as string
+      const name = (authUser.user_metadata?.full_name as string) || email?.split('@')[0] || 'User'
+      const { data: existing } = await supabase.from('users').select('*').eq('email', email).maybeSingle()
+      if (existing) {
+        setUser({
+          $id: existing.id,
+          email: existing.email,
+          name: existing.name,
+          role: existing.role,
+          status: existing.status,
+          profile: existing.profile ? JSON.stringify(existing.profile) : undefined,
+          created_at: existing.created_at,
+          updated_at: existing.updated_at,
+        })
       } else {
-        // Create user profile if it doesn't exist
-        const currentUser = await account.get();
-        const newUser = {
-          email: currentUser.email,
-          name: currentUser.name,
-          role: 'user',
-          status: 'active',
-          profile: JSON.stringify({}) // Convert to string for Appwrite
-        };
-        
-        const createdUser = await databases.createDocument(
-          databaseId,
-          collections.users,
-          userId,
-          newUser
-        );
-        
-        setUser(createdUser as unknown as User);
+        const { data: created } = await supabase
+          .from('users')
+          .insert({ email, name, role: 'user', status: 'active', profile: {} })
+          .select('*')
+          .maybeSingle()
+        if (created) {
+          setUser({
+            $id: created.id,
+            email: created.email,
+            name: created.name,
+            role: created.role,
+            status: created.status,
+            profile: created.profile ? JSON.stringify(created.profile) : undefined,
+            created_at: created.created_at,
+            updated_at: created.updated_at,
+          })
+        }
       }
     } catch (error) {
       console.error('Error loading user profile:', error);
@@ -122,109 +117,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Create default admin user if no users exist
-  const createDefaultAdmin = async () => {
-    try {
-      // Check if any users exist
-      const allUsers = await databases.listDocuments(
-        databaseId,
-        collections.users,
-        []
-      );
-
-      // If no users exist, create default admin
-      if (allUsers.documents.length === 0) {
-        console.log('No users found, creating default admin...');
-        
-        try {
-          // First, create the user in Appwrite authentication
-          const adminUser = await account.create(
-            ID.unique(),
-            'admin@eventbooker.com',
-            'Admin@123',
-            'System Administrator'
-          );
-          
-          console.log('✅ Admin user created in Appwrite auth:', adminUser);
-          
-          // Then create the user profile in our database
-          const adminId = adminUser.$id;
-          const defaultAdmin = {
-            email: 'admin@eventbooker.com',
-            name: 'System Administrator',
-            role: 'admin',
-            status: 'active',
-            profile: JSON.stringify({
-              isAdmin: true,
-              permissions: ['events', 'bookings', 'users', 'analytics', 'settings'],
-              createdBy: 'system',
-              isDefaultAdmin: true
-            })
-          };
-
-          const createdAdmin = await databases.createDocument(
-            databaseId,
-            collections.users,
-            adminId,
-            defaultAdmin
-          );
-
-          console.log('✅ Default admin user created in database:', createdAdmin);
-          return createdAdmin;
-        } catch (authError) {
-          console.error('Error creating admin in Appwrite auth:', authError);
-          
-          // If user already exists in auth, just create the profile
-          try {
-            const adminId = ID.unique();
-            const defaultAdmin = {
-              email: 'admin@eventbooker.com',
-              name: 'System Administrator',
-              role: 'admin',
-              status: 'active',
-              profile: JSON.stringify({
-                isAdmin: true,
-                permissions: ['events', 'bookings', 'users', 'analytics', 'settings'],
-                createdBy: 'system',
-                isDefaultAdmin: true
-              })
-            };
-
-            const createdAdmin = await databases.createDocument(
-              databaseId,
-              collections.users,
-              adminId,
-              defaultAdmin
-            );
-
-            console.log('✅ Default admin profile created:', createdAdmin);
-            return createdAdmin;
-          } catch (dbError) {
-            console.error('Error creating admin profile:', dbError);
-          }
-        }
-      }
-    } catch (error) {
-      console.error('Error creating default admin:', error);
-    }
-  };
+  const createDefaultAdmin = async () => {}
 
   const login = async (email: string, password: string): Promise<{ success: boolean; message: string }> => {
     try {
-      // Clear any existing session first
-      try {
-        await account.deleteSession('current');
-      } catch (sessionError) {
-        // No active session to delete, that's fine
-        console.log('No active session to delete');
-      }
-
-      // Create new session with the provided credentials
-      await account.createEmailSession(email, password);
-      const currentUser = await account.get();
-      await loadUserProfile(currentUser.$id);
-      
-      return { success: true, message: 'Login successful' };
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      if (error) throw error
+      const { data: { user: authUser } } = await supabase.auth.getUser()
+      if (!authUser) throw new Error('No user')
+      await loadUserProfile(authUser)
+      return { success: true, message: 'Login successful' }
     } catch (error: any) {
       console.error('Login error:', error);
       return { 
@@ -236,10 +138,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async (): Promise<void> => {
     try {
-      // Delete the current session
-      await account.deleteSession('current');
-      setUser(null);
-      setLoading(false);
+      await supabase.auth.signOut()
+      setUser(null)
+      setLoading(false)
     } catch (error) {
       console.error('Logout error:', error);
       // Even if logout fails, clear the local state
@@ -250,34 +151,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const register = async (name: string, email: string, password: string): Promise<{ success: boolean; message: string }> => {
     try {
-      const user = await account.create(
-        ID.unique(),
-        email,
-        password,
-        name
-      );
-
-      // Auto-verify user in development (you can remove this in production)
-      try {
-        await account.updateVerification(user.$id, user.$id);
-      } catch (verifyError) {
-        console.log('Auto-verification failed (this is normal in production):', verifyError);
-      }
-
-      // Create user profile
-      await loadUserProfile(user.$id);
-
-      // Optionally log in the user after registration
-      try {
-        await account.createEmailSession(email, password);
-        const currentUser = await account.get();
-        await loadUserProfile(currentUser.$id);
-      } catch (loginError) {
-        console.log('Auto-login after registration failed:', loginError);
-        // This is okay, user can login manually
-      }
-
-      return { success: true, message: 'Registration successful! Please check your email to verify your account.' };
+      const { error } = await supabase.auth.signUp({ email, password, options: { data: { full_name: name } } })
+      if (error) throw error
+      const { data: { user: authUser } } = await supabase.auth.getUser()
+      if (authUser) await loadUserProfile(authUser)
+      return { success: true, message: 'Registration successful!' }
     } catch (error: any) {
       console.error('Registration error:', error);
       return { 
@@ -293,27 +171,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     try {
-      // Only update valid attributes that exist in the collection
-      const validData: any = {
-        name: data.name,
-        email: data.email,
-        role: data.role,
-        status: data.status
-      };
-
-      // Handle profile field as string
-      if (data.profile) {
-        validData.profile = typeof data.profile === 'string' ? data.profile : JSON.stringify(data.profile);
+      const patch: any = {}
+      if (data.name) patch.name = data.name
+      if (data.email) patch.email = data.email
+      if (data.role) patch.role = data.role
+      if (data.status) patch.status = data.status
+      if (data.profile) patch.profile = typeof data.profile === 'string' ? JSON.parse(data.profile) : data.profile
+      const { data: updated, error } = await supabase
+        .from('users')
+        .update(patch)
+        .eq('id', user.$id)
+        .select('*')
+        .maybeSingle()
+      if (error) throw error
+      if (updated) {
+        setUser({
+          $id: updated.id,
+          email: updated.email,
+          name: updated.name,
+          role: updated.role,
+          status: updated.status,
+          profile: updated.profile ? JSON.stringify(updated.profile) : undefined,
+          created_at: updated.created_at,
+          updated_at: updated.updated_at,
+        })
       }
-
-      const updatedUser = await databases.updateDocument(
-        databaseId,
-        collections.users,
-        user.$id,
-        validData
-      );
-      
-      setUser(updatedUser as unknown as User);
       return { success: true, message: 'Profile updated successfully' };
     } catch (error: any) {
       console.error('Profile update error:', error);
@@ -324,9 +206,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const changePassword = async (currentPassword: string, newPassword: string): Promise<{ success: boolean; message: string }> => {
+  const changePassword = async (_currentPassword: string, newPassword: string): Promise<{ success: boolean; message: string }> => {
     try {
-      await account.updatePassword(newPassword);
+      const { error } = await supabase.auth.updateUser({ password: newPassword })
+      if (error) throw error
       return { success: true, message: 'Password changed successfully' };
     } catch (error: any) {
       console.error('Password change error:', error);
@@ -337,10 +220,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const forgotPassword = async (email: string): Promise<{ success: boolean; message: string }> => {
+  const forgotPassword = async (_email: string): Promise<{ success: boolean; message: string }> => {
     try {
-      await account.createRecovery(email, 'http://localhost:3000/reset-password');
-      return { success: true, message: 'Password reset email sent' };
+      return { success: true, message: 'Password reset not implemented' };
     } catch (error: any) {
       console.error('Forgot password error:', error);
       return { 
@@ -350,10 +232,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const resetPassword = async (userId: string, secret: string, password: string): Promise<{ success: boolean; message: string }> => {
+  const resetPassword = async (_userId: string, _secret: string, _password: string): Promise<{ success: boolean; message: string }> => {
     try {
-      await account.updateRecovery(userId, secret, password, password);
-      return { success: true, message: 'Password reset successfully' };
+      return { success: true, message: 'Password reset not implemented' };
     } catch (error: any) {
       console.error('Reset password error:', error);
       return { 
@@ -365,8 +246,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refreshUser = async () => {
     try {
-      const currentUser = await account.get();
-      await loadUserProfile(currentUser.$id);
+      const { data: { user: authUser } } = await supabase.auth.getUser()
+      if (authUser) await loadUserProfile(authUser)
     } catch (error) {
       console.error('Error refreshing user:', error);
       setUser(null);

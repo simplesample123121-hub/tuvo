@@ -1,12 +1,14 @@
 "use client"
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { sampleEvents } from '@/lib/sample-data'
+import { useEffect, useState } from 'react'
+import { eventsApi } from '@/lib/api/events'
+import { bookingsApi } from '@/lib/api/bookings'
 import { formatPrice } from '@/lib/utils'
 import { 
   Calendar, 
   Users, 
-  DollarSign, 
+  IndianRupee, 
   TrendingUp,
   Eye,
   Clock,
@@ -16,53 +18,58 @@ import {
   Settings
 } from 'lucide-react'
 
-// Sample data for dashboard
-const dashboardData = {
-  totalEvents: sampleEvents.length,
-  totalBookings: 1247,
-  totalRevenue: 156789,
-  activeEvents: sampleEvents.filter(e => e.status === 'upcoming' || e.status === 'ongoing').length,
-  upcomingEvents: sampleEvents.filter(e => e.status === 'upcoming').length,
-  ongoingEvents: sampleEvents.filter(e => e.status === 'ongoing').length,
-  completedEvents: sampleEvents.filter(e => e.status === 'completed').length,
-}
-
-const recentBookings = [
-  {
-    id: '1',
-    eventName: 'Tech Conference 2024',
-    attendee: 'John Doe',
-    amount: 299,
-    status: 'confirmed',
-    date: '2024-01-15'
-  },
-  {
-    id: '2',
-    eventName: 'Summer Music Festival',
-    attendee: 'Jane Smith',
-    amount: 199,
-    status: 'confirmed',
-    date: '2024-01-14'
-  },
-  {
-    id: '3',
-    eventName: 'Food & Wine Expo',
-    attendee: 'Mike Johnson',
-    amount: 149,
-    status: 'pending',
-    date: '2024-01-13'
-  },
-  {
-    id: '4',
-    eventName: 'Art Gallery Opening',
-    attendee: 'Sarah Wilson',
-    amount: 75,
-    status: 'confirmed',
-    date: '2024-01-12'
-  }
-]
-
 export default function AdminDashboard() {
+  const [metrics, setMetrics] = useState({
+    totalEvents: 0,
+    totalBookings: 0,
+    totalRevenue: 0,
+    activeEvents: 0,
+    upcomingEvents: 0,
+    ongoingEvents: 0,
+    completedEvents: 0,
+  })
+  const [recentBookings, setRecentBookings] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        setLoading(true)
+        const [events, allBookings] = await Promise.all([
+          eventsApi.getAll(),
+          bookingsApi.getAll(),
+        ])
+
+        const totalEvents = events.length
+        const upcomingEvents = events.filter(e => e.status === 'upcoming').length
+        const ongoingEvents = events.filter(e => e.status === 'ongoing').length
+        const completedEvents = events.filter(e => e.status === 'completed').length
+        const activeEvents = upcomingEvents + ongoingEvents
+        const totalBookings = allBookings.length
+        const totalRevenue = allBookings
+          .filter(b => b.payment_status === 'completed')
+          .reduce((sum, b) => sum + (b.amount || 0), 0)
+
+        const recent = allBookings
+          .slice(0, 10)
+          .map(b => ({
+            id: b.$id,
+            eventName: b.event_name,
+            attendee: b.customer_name,
+            amount: b.amount,
+            status: b.booking_status,
+            date: new Date(b.booking_date).toLocaleDateString(),
+          }))
+
+        setMetrics({ totalEvents, totalBookings, totalRevenue, activeEvents, upcomingEvents, ongoingEvents, completedEvents })
+        setRecentBookings(recent)
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+  }, [])
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -81,10 +88,10 @@ export default function AdminDashboard() {
             <Calendar className="h-5 w-5 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-gray-900">{dashboardData.totalEvents}</div>
-            <p className="text-xs text-gray-500">
+            <div className="text-3xl font-bold text-gray-900">{metrics.totalEvents}</div>
+            {/* <p className="text-xs text-gray-500">
               +12% from last month
-            </p>
+            </p> */}
           </CardContent>
         </Card>
 
@@ -94,23 +101,23 @@ export default function AdminDashboard() {
             <Users className="h-5 w-5 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-gray-900">{dashboardData.totalBookings}</div>
-            <p className="text-xs text-gray-500">
+            <div className="text-3xl font-bold text-gray-900">{metrics.totalBookings}</div>
+            {/* <p className="text-xs text-gray-500">
               +8% from last month
-            </p>
+            </p> */}
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <IndianRupee className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatPrice(dashboardData.totalRevenue)}</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-2xl font-bold">{formatPrice(metrics.totalRevenue, 'INR')}</div>
+            {/* <p className="text-xs text-muted-foreground">
               +15% from last month
-            </p>
+            </p> */}
           </CardContent>
         </Card>
 
@@ -120,10 +127,10 @@ export default function AdminDashboard() {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{dashboardData.activeEvents}</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-2xl font-bold">{metrics.activeEvents}</div>
+            {/* <p className="text-xs text-muted-foreground">
               Currently running
-            </p>
+            </p> */}
           </CardContent>
         </Card>
       </div>
@@ -138,7 +145,7 @@ export default function AdminDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-blue-600">{dashboardData.upcomingEvents}</div>
+            <div className="text-3xl font-bold text-blue-600">{metrics.upcomingEvents}</div>
             <p className="text-sm text-muted-foreground mt-1">
               Events scheduled for the future
             </p>
@@ -153,7 +160,7 @@ export default function AdminDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-green-600">{dashboardData.ongoingEvents}</div>
+            <div className="text-3xl font-bold text-green-600">{metrics.ongoingEvents}</div>
             <p className="text-sm text-muted-foreground mt-1">
               Events currently happening
             </p>
@@ -168,7 +175,7 @@ export default function AdminDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-gray-600">{dashboardData.completedEvents}</div>
+            <div className="text-3xl font-bold text-gray-600">{metrics.completedEvents}</div>
             <p className="text-sm text-muted-foreground mt-1">
               Events that have finished
             </p>
@@ -212,7 +219,7 @@ export default function AdminDashboard() {
 
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
+        {/* <Card>
           <CardHeader>
             <CardTitle>Quick Actions</CardTitle>
           </CardHeader>
@@ -240,44 +247,71 @@ export default function AdminDashboard() {
               </button>
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
 
         <Card>
           <CardHeader>
             <CardTitle>System Status</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm">Platform Status</span>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-sm text-green-600">Operational</span>
-              </div>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm">Payment Processing</span>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-sm text-green-600">Online</span>
-              </div>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm">Email Service</span>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-sm text-green-600">Active</span>
-              </div>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm">Database</span>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-sm text-green-600">Connected</span>
-              </div>
-            </div>
+            <StatusRows />
           </CardContent>
         </Card>
       </div>
     </div>
   )
 } 
+
+function StatusRows() {
+  const [status, setStatus] = useState<any>({})
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await fetch('/api/status', { cache: 'no-store' })
+        const data = await res.json()
+        setStatus(data)
+      } catch {
+        setStatus({ platform: 'error', database: 'error', payment: 'error', email: 'not_configured' })
+      }
+    }
+    load()
+  }, [])
+
+  const Dot = ({ ok }: { ok: boolean }) => (
+    <div className={`w-2 h-2 rounded-full ${ok ? 'bg-green-500' : 'bg-red-500'}`}></div>
+  )
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <span className="text-sm">Platform Status</span>
+        <div className="flex items-center gap-2">
+          <Dot ok={true} />
+          <span className="text-sm text-green-600">Operational</span>
+        </div>
+      </div>
+      <div className="flex items-center justify-between">
+        <span className="text-sm">Database</span>
+        <div className="flex items-center gap-2">
+          <Dot ok={status.database === 'ok'} />
+          <span className="text-sm">{status.database === 'ok' ? 'Connected' : 'Error'}</span>
+        </div>
+      </div>
+      <div className="flex items-center justify-between">
+        <span className="text-sm">Payment Processing</span>
+        <div className="flex items-center gap-2">
+          <Dot ok={status.payment === 'ok'} />
+          <span className="text-sm">{status.payment === 'ok' ? 'Online' : 'Error'}</span>
+        </div>
+      </div>
+      <div className="flex items-center justify-between">
+        <span className="text-sm">Email Service</span>
+        <div className="flex items-center gap-2">
+          <Dot ok={status.email === 'configured'} />
+          <span className="text-sm">{status.email === 'configured' ? 'Configured' : 'Not Configured'}</span>
+        </div>
+      </div>
+      <div className="text-xs text-muted-foreground">Last check: {status.timestamp || '-'}</div>
+    </div>
+  )
+}

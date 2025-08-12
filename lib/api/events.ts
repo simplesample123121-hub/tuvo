@@ -1,5 +1,4 @@
-import { databases, databaseId, collections } from '../appwrite';
-import { ID, Query } from 'appwrite';
+import { supabase, type Event as SbEvent } from '../supabase'
 
 export interface Event {
   $id: string;
@@ -81,8 +80,32 @@ const sampleEvents: Event[] = [
 export const eventsApi = {
   async getAll(): Promise<Event[]> {
     try {
-      const response = await databases.listDocuments(databaseId, collections.events);
-      return response.documents as unknown as Event[];
+      const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .order('created_at', { ascending: false })
+      if (error) throw error
+      // Map Supabase rows to Event shape
+      return (data || []).map((row: any) => ({
+        $id: row.id,
+        name: row.name || '',
+        description: row.description || '',
+        date: row.date || '',
+        time: row.time || '',
+        venue: row.venue || '',
+        category: row.category || '',
+        price: Number(row.price || 0),
+        ticket_count: Number(row.ticket_count || 0),
+        available_tickets: Number(row.available_tickets || 0),
+        status: row.status || 'upcoming',
+        image_url: row.image_url || '',
+        created_by: row.created_by || '',
+        tags: row.tags || [],
+        featured: !!row.featured,
+        location: row.location || '',
+        created_at: row.created_at || '',
+        updated_at: row.updated_at || '',
+      }))
     } catch (error) {
       console.warn('Appwrite not accessible, using sample data:', error);
       return sampleEvents;
@@ -91,8 +114,33 @@ export const eventsApi = {
 
   async getById(id: string): Promise<Event | null> {
     try {
-      const response = await databases.getDocument(databaseId, collections.events, id);
-      return response as unknown as Event;
+      const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle()
+      if (error) throw error
+      if (!data) return null
+      return {
+        $id: data.id,
+        name: data.name || '',
+        description: data.description || '',
+        date: data.date || '',
+        time: data.time || '',
+        venue: data.venue || '',
+        category: data.category || '',
+        price: Number(data.price || 0),
+        ticket_count: Number(data.ticket_count || 0),
+        available_tickets: Number(data.available_tickets || 0),
+        status: data.status || 'upcoming',
+        image_url: data.image_url || '',
+        created_by: data.created_by || '',
+        tags: data.tags || [],
+        featured: !!data.featured,
+        location: data.location || '',
+        created_at: data.created_at || '',
+        updated_at: data.updated_at || '',
+      }
     } catch (error) {
       console.warn('Appwrite not accessible, using sample data:', error);
       return sampleEvents.find(event => event.$id === id) || null;
@@ -101,13 +149,36 @@ export const eventsApi = {
 
   async create(eventData: Omit<Event, '$id' | 'created_at' | 'updated_at'>): Promise<Event | null> {
     try {
-      const response = await databases.createDocument(
-        databaseId,
-        collections.events,
-        ID.unique(),
-        eventData
-      );
-      return response as unknown as Event;
+      const payload: any = {
+        name: eventData.name,
+        description: eventData.description,
+        date: eventData.date,
+        time: eventData.time,
+        venue: eventData.venue,
+        category: eventData.category,
+        price: eventData.price,
+        ticket_count: eventData.ticket_count,
+        available_tickets: eventData.available_tickets,
+        status: eventData.status,
+        image_url: eventData.image_url,
+        created_by: eventData.created_by,
+        tags: eventData.tags,
+        featured: eventData.featured,
+        location: eventData.location,
+      }
+      const { data, error } = await supabase
+        .from('events')
+        .insert(payload)
+        .select('*')
+        .maybeSingle()
+      if (error) throw error
+      if (!data) return null
+      return {
+        $id: data.id,
+        ...eventData,
+        created_at: data.created_at,
+        updated_at: data.updated_at,
+      }
     } catch (error) {
       console.error('Error creating event:', error);
       return null;
@@ -116,13 +187,34 @@ export const eventsApi = {
 
   async update(id: string, eventData: Partial<Omit<Event, '$id' | 'created_at' | 'updated_at'>>): Promise<Event | null> {
     try {
-      const response = await databases.updateDocument(
-        databaseId,
-        collections.events,
-        id,
-        eventData
-      );
-      return response as unknown as Event;
+      const { data, error } = await supabase
+        .from('events')
+        .update(eventData as any)
+        .eq('id', id)
+        .select('*')
+        .maybeSingle()
+      if (error) throw error
+      if (!data) return null
+      return {
+        $id: data.id,
+        name: data.name,
+        description: data.description,
+        date: data.date,
+        time: data.time,
+        venue: data.venue,
+        category: data.category,
+        price: data.price,
+        ticket_count: data.ticket_count,
+        available_tickets: data.available_tickets,
+        status: data.status,
+        image_url: data.image_url,
+        created_by: data.created_by,
+        tags: data.tags,
+        featured: data.featured,
+        location: data.location,
+        created_at: data.created_at,
+        updated_at: data.updated_at,
+      }
     } catch (error) {
       console.error('Error updating event:', error);
       return null;
@@ -131,8 +223,9 @@ export const eventsApi = {
 
   async delete(id: string): Promise<boolean> {
     try {
-      await databases.deleteDocument(databaseId, collections.events, id);
-      return true;
+      const { error } = await supabase.from('events').delete().eq('id', id)
+      if (error) throw error
+      return true
     } catch (error) {
       console.error('Error deleting event:', error);
       return false;
@@ -141,12 +234,32 @@ export const eventsApi = {
 
   async search(query: string, category?: string, status?: string): Promise<Event[]> {
     try {
-      const queries = [Query.search('name', query)];
-      if (category) queries.push(Query.equal('category', category));
-      if (status) queries.push(Query.equal('status', status));
-      
-      const response = await databases.listDocuments(databaseId, collections.events, queries);
-      return response.documents as unknown as Event[];
+      let req = supabase.from('events').select('*')
+        .ilike('name', `%${query}%`)
+      if (category) req = req.eq('category', category)
+      if (status) req = req.eq('status', status)
+      const { data, error } = await req
+      if (error) throw error
+      return (data || []).map((row: any) => ({
+        $id: row.id,
+        name: row.name,
+        description: row.description,
+        date: row.date,
+        time: row.time,
+        venue: row.venue,
+        category: row.category,
+        price: row.price,
+        ticket_count: row.ticket_count,
+        available_tickets: row.available_tickets,
+        status: row.status,
+        image_url: row.image_url,
+        created_by: row.created_by,
+        tags: row.tags || [],
+        featured: !!row.featured,
+        location: row.location || '',
+        created_at: row.created_at,
+        updated_at: row.updated_at,
+      }))
     } catch (error) {
       console.warn('Appwrite not accessible, using sample data:', error);
       return sampleEvents.filter(event => 
@@ -158,12 +271,28 @@ export const eventsApi = {
 
   async getUpcoming(): Promise<Event[]> {
     try {
-      const response = await databases.listDocuments(
-        databaseId,
-        collections.events,
-        [Query.equal('status', 'upcoming')]
-      );
-      return response.documents as unknown as Event[];
+      const { data, error } = await supabase.from('events').select('*').eq('status', 'upcoming')
+      if (error) throw error
+      return (data || []).map((row: any) => ({
+        $id: row.id,
+        name: row.name,
+        description: row.description,
+        date: row.date,
+        time: row.time,
+        venue: row.venue,
+        category: row.category,
+        price: row.price,
+        ticket_count: row.ticket_count,
+        available_tickets: row.available_tickets,
+        status: row.status,
+        image_url: row.image_url,
+        created_by: row.created_by,
+        tags: row.tags || [],
+        featured: !!row.featured,
+        location: row.location || '',
+        created_at: row.created_at,
+        updated_at: row.updated_at,
+      }))
     } catch (error) {
       console.warn('Appwrite not accessible, using sample data:', error);
       return sampleEvents.filter(event => event.status === 'upcoming');
@@ -172,12 +301,28 @@ export const eventsApi = {
 
   async getFeatured(): Promise<Event[]> {
     try {
-      const response = await databases.listDocuments(
-        databaseId,
-        collections.events,
-        [Query.equal('featured', true)]
-      );
-      return response.documents as unknown as Event[];
+      const { data, error } = await supabase.from('events').select('*').eq('featured', true)
+      if (error) throw error
+      return (data || []).map((row: any) => ({
+        $id: row.id,
+        name: row.name,
+        description: row.description,
+        date: row.date,
+        time: row.time,
+        venue: row.venue,
+        category: row.category,
+        price: row.price,
+        ticket_count: row.ticket_count,
+        available_tickets: row.available_tickets,
+        status: row.status,
+        image_url: row.image_url,
+        created_by: row.created_by,
+        tags: row.tags || [],
+        featured: !!row.featured,
+        location: row.location || '',
+        created_at: row.created_at,
+        updated_at: row.updated_at,
+      }))
     } catch (error) {
       console.warn('Appwrite not accessible, using sample data:', error);
       return sampleEvents.filter(event => event.featured);
@@ -186,12 +331,28 @@ export const eventsApi = {
 
   async getByCategory(category: string): Promise<Event[]> {
     try {
-      const response = await databases.listDocuments(
-        databaseId,
-        collections.events,
-        [Query.equal('category', category)]
-      );
-      return response.documents as unknown as Event[];
+      const { data, error } = await supabase.from('events').select('*').eq('category', category)
+      if (error) throw error
+      return (data || []).map((row: any) => ({
+        $id: row.id,
+        name: row.name,
+        description: row.description,
+        date: row.date,
+        time: row.time,
+        venue: row.venue,
+        category: row.category,
+        price: row.price,
+        ticket_count: row.ticket_count,
+        available_tickets: row.available_tickets,
+        status: row.status,
+        image_url: row.image_url,
+        created_by: row.created_by,
+        tags: row.tags || [],
+        featured: !!row.featured,
+        location: row.location || '',
+        created_at: row.created_at,
+        updated_at: row.updated_at,
+      }))
     } catch (error) {
       console.warn('Appwrite not accessible, using sample data:', error);
       return sampleEvents.filter(event => event.category === category);

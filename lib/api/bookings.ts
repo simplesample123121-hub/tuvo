@@ -1,5 +1,5 @@
-import { databases, databaseId, collections } from '../appwrite';
-import { ID, Query } from 'appwrite';
+import { supabase } from '../supabase';
+import { eventsApi } from './events';
 
 export interface Booking {
   $id: string;
@@ -86,33 +86,107 @@ const sampleBookings: Booking[] = [
 export const bookingsApi = {
   async getAll(): Promise<Booking[]> {
     try {
-      const response = await databases.listDocuments(databaseId, collections.bookings);
-      return response.documents as unknown as Booking[];
+      const { data, error } = await supabase
+        .from('bookings')
+        .select('*')
+        .order('created_at', { ascending: false })
+      if (error) throw error
+
+      const events = await eventsApi.getAll()
+      const eventMap = new Map(events.map(e => [e.$id, e]))
+
+      return (data || []).map((b: any) => {
+        const ev = eventMap.get(String(b.event_id))
+        return {
+          $id: String(b.id),
+          user_id: b.user_id || '',
+          event_id: String(b.event_id || ''),
+          event_name: ev?.name || 'Event',
+          event_date: ev?.date || new Date().toISOString(),
+          event_location: ev?.venue || 'TBD',
+          ticket_type: b.ticket_type || 'General',
+          quantity: 1,
+          amount: Number(b.payment_amount || 0),
+          currency: 'INR',
+          payment_method: b.payment_method || 'PayU',
+          payment_status: (b.payment_status as any) || 'completed',
+          transaction_id: String(b.id),
+          booking_status: (b.status as any) || 'confirmed',
+          customer_name: b.attendee_name || 'Customer',
+          customer_email: b.attendee_email || 'customer@example.com',
+          booking_date: b.created_at || new Date().toISOString(),
+          created_at: b.created_at,
+          updated_at: b.updated_at,
+        } as unknown as Booking
+      })
     } catch (error) {
-      console.warn('Appwrite not accessible, using sample data:', error);
+      console.warn('Supabase not accessible, using sample data:', error);
       return sampleBookings;
     }
   },
 
   async getById(id: string): Promise<Booking | null> {
     try {
-      const response = await databases.getDocument(databaseId, collections.bookings, id);
-      return response as unknown as Booking;
+      const { data, error } = await supabase
+        .from('bookings')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle()
+      if (error) throw error
+      if (!data) return null
+      const events = await eventsApi.getAll()
+      const ev = events.find(e => e.$id === String(data.event_id))
+      return {
+        $id: String(data.id),
+        user_id: data.user_id || '',
+        event_id: String(data.event_id || ''),
+        event_name: ev?.name || 'Event',
+        event_date: ev?.date || new Date().toISOString(),
+        event_location: ev?.venue || 'TBD',
+        ticket_type: data.ticket_type || 'General',
+        quantity: 1,
+        amount: Number(data.payment_amount || 0),
+        currency: 'INR',
+        payment_method: data.payment_method || 'PayU',
+        payment_status: (data.payment_status as any) || 'completed',
+        transaction_id: String(data.id),
+        booking_status: (data.status as any) || 'confirmed',
+        customer_name: data.attendee_name || 'Customer',
+        customer_email: data.attendee_email || 'customer@example.com',
+        booking_date: data.created_at || new Date().toISOString(),
+        created_at: data.created_at,
+        updated_at: data.updated_at,
+      } as unknown as Booking
     } catch (error) {
-      console.warn('Appwrite not accessible, using sample data:', error);
+      console.warn('Supabase not accessible, using sample data:', error);
       return sampleBookings.find(booking => booking.$id === id) || null;
     }
   },
 
   async create(bookingData: Omit<Booking, '$id' | 'created_at' | 'updated_at'>): Promise<Booking | null> {
     try {
-      const response = await databases.createDocument(
-        databaseId,
-        collections.bookings,
-        ID.unique(),
-        bookingData
-      );
-      return response as unknown as Booking;
+      const payload: any = {
+        id: bookingData.transaction_id,
+        event_id: bookingData.event_id,
+        user_id: bookingData.user_id,
+        attendee_name: bookingData.customer_name,
+        attendee_email: bookingData.customer_email,
+        attendee_phone: '',
+        attendee_gender: 'NA',
+        attendee_age: 0,
+        attendee_address: 'N/A',
+        payment_status: bookingData.payment_status,
+        payment_amount: bookingData.amount,
+        payment_method: bookingData.payment_method,
+        qr_code: bookingData.qr_code || 'qr',
+        status: bookingData.booking_status,
+        ticket_type: bookingData.ticket_type,
+        notes: bookingData.event_name,
+      }
+      const { data, error } = await supabase.from('bookings').insert(payload).select('*').maybeSingle()
+      if (error) throw error
+      if (!data) return null
+      return (await this.getById(String(data.id)))
     } catch (error) {
       console.error('Error creating booking:', error);
       return null;
@@ -121,13 +195,20 @@ export const bookingsApi = {
 
   async update(id: string, bookingData: Partial<Omit<Booking, '$id' | 'created_at' | 'updated_at'>>): Promise<Booking | null> {
     try {
-      const response = await databases.updateDocument(
-        databaseId,
-        collections.bookings,
-        id,
-        bookingData
-      );
-      return response as unknown as Booking;
+      const patch: any = {}
+      if (bookingData.booking_status) patch.status = bookingData.booking_status
+      if (bookingData.payment_status) patch.payment_status = bookingData.payment_status
+      if (bookingData.amount !== undefined) patch.payment_amount = bookingData.amount
+      if (bookingData.ticket_type) patch.ticket_type = bookingData.ticket_type
+      const { data, error } = await supabase
+        .from('bookings')
+        .update(patch)
+        .eq('id', id)
+        .select('*')
+        .maybeSingle()
+      if (error) throw error
+      if (!data) return null
+      return (await this.getById(id))
     } catch (error) {
       console.error('Error updating booking:', error);
       return null;
@@ -136,8 +217,9 @@ export const bookingsApi = {
 
   async delete(id: string): Promise<boolean> {
     try {
-      await databases.deleteDocument(databaseId, collections.bookings, id);
-      return true;
+      const { error } = await supabase.from('bookings').delete().eq('id', id)
+      if (error) throw error
+      return true
     } catch (error) {
       console.error('Error deleting booking:', error);
       return false;
@@ -146,70 +228,150 @@ export const bookingsApi = {
 
   async getByEvent(eventId: string): Promise<Booking[]> {
     try {
-      const response = await databases.listDocuments(
-        databaseId,
-        collections.bookings,
-        [Query.equal('event_id', eventId)]
-      );
-      return response.documents as unknown as Booking[];
+      const { data, error } = await supabase
+        .from('bookings')
+        .select('*')
+        .eq('event_id', eventId)
+        .order('created_at', { ascending: false })
+      if (error) throw error
+      const events = await eventsApi.getAll()
+      const ev = events.find(e => e.$id === String(eventId))
+      return (data || []).map((b: any) => ({
+        $id: String(b.id),
+        user_id: b.user_id || '',
+        event_id: String(b.event_id || ''),
+        event_name: ev?.name || 'Event',
+        event_date: ev?.date || new Date().toISOString(),
+        event_location: ev?.venue || 'TBD',
+        ticket_type: b.ticket_type || 'General',
+        quantity: 1,
+        amount: Number(b.payment_amount || 0),
+        currency: 'INR',
+        payment_method: b.payment_method || 'PayU',
+        payment_status: (b.payment_status as any) || 'completed',
+        transaction_id: String(b.id),
+        booking_status: (b.status as any) || 'confirmed',
+        customer_name: b.attendee_name || 'Customer',
+        customer_email: b.attendee_email || 'customer@example.com',
+        booking_date: b.created_at || new Date().toISOString(),
+        created_at: b.created_at,
+        updated_at: b.updated_at,
+      }) as unknown as Booking)
     } catch (error) {
-      console.warn('Appwrite not accessible, using sample data:', error);
+      console.warn('Supabase not accessible, using sample data:', error);
       return sampleBookings.filter(booking => booking.event_id === eventId);
     }
   },
 
-  async getByUser(userId: string): Promise<Booking[]> {
+  async getByUser(userId: string, email?: string): Promise<Booking[]> {
     try {
-      const response = await databases.listDocuments(
-        databaseId,
-        collections.bookings,
-        [Query.equal('user_id', userId)]
-      );
-      return response.documents as unknown as Booking[];
+      // Fetch by user_id
+      const { data: byUserId, error: err1 } = await supabase
+        .from('bookings')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+      if (err1) throw err1
+
+      // Optionally fetch legacy bookings by attendee_email
+      let byEmail: any[] = []
+      if (email) {
+        const { data: emailRows } = await supabase
+          .from('bookings')
+          .select('*')
+          .ilike('attendee_email', email)
+          .order('created_at', { ascending: false })
+        if (emailRows) byEmail = emailRows
+      }
+
+      const merged: any[] = []
+      const seen = new Set<string>()
+      for (const row of [...(byUserId || []), ...byEmail]) {
+        const id = String(row.id)
+        if (!seen.has(id)) { seen.add(id); merged.push(row) }
+      }
+
+      const events = await eventsApi.getAll()
+      const eventMap = new Map(events.map(e => [e.$id, e]))
+      return (merged || []).map((b: any) => {
+        const ev = eventMap.get(String(b.event_id))
+        return {
+          $id: String(b.id),
+          user_id: b.user_id || '',
+          event_id: String(b.event_id || ''),
+          event_name: ev?.name || 'Event',
+          event_date: ev?.date || new Date().toISOString(),
+          event_location: ev?.venue || 'TBD',
+          ticket_type: b.ticket_type || 'General',
+          quantity: 1,
+          amount: Number(b.payment_amount || 0),
+          currency: 'INR',
+          payment_method: b.payment_method || 'PayU',
+          payment_status: (b.payment_status as any) || 'completed',
+          transaction_id: String(b.id),
+          booking_status: (b.status as any) || 'confirmed',
+          customer_name: b.attendee_name || 'Customer',
+          customer_email: b.attendee_email || 'customer@example.com',
+          booking_date: b.created_at || new Date().toISOString(),
+          created_at: b.created_at,
+          updated_at: b.updated_at,
+        } as unknown as Booking
+      })
     } catch (error) {
-      console.warn('Appwrite not accessible, using sample data:', error);
+      console.warn('Supabase not accessible, using sample data:', error);
       return sampleBookings.filter(booking => booking.user_id === userId);
     }
   },
 
   async getByStatus(status: string): Promise<Booking[]> {
     try {
-      const response = await databases.listDocuments(
-        databaseId,
-        collections.bookings,
-        [Query.equal('booking_status', status)]
-      );
-      return response.documents as unknown as Booking[];
+      const { data, error } = await supabase
+        .from('bookings')
+        .select('*')
+        .eq('status', status)
+        .order('created_at', { ascending: false })
+      if (error) throw error
+      const all = await this.getAll()
+      return all.filter(b => b.booking_status === status)
     } catch (error) {
-      console.warn('Appwrite not accessible, using sample data:', error);
+      console.warn('Supabase not accessible, using sample data:', error);
       return sampleBookings.filter(booking => booking.booking_status === status);
     }
   },
 
   async getByPaymentStatus(paymentStatus: string): Promise<Booking[]> {
     try {
-      const response = await databases.listDocuments(
-        databaseId,
-        collections.bookings,
-        [Query.equal('payment_status', paymentStatus)]
-      );
-      return response.documents as unknown as Booking[];
+      const { data, error } = await supabase
+        .from('bookings')
+        .select('*')
+        .eq('payment_status', paymentStatus)
+        .order('created_at', { ascending: false })
+      if (error) throw error
+      const all = await this.getAll()
+      return all.filter(b => b.payment_status === paymentStatus)
     } catch (error) {
-      console.warn('Appwrite not accessible, using sample data:', error);
+      console.warn('Supabase not accessible, using sample data:', error);
       return sampleBookings.filter(booking => booking.payment_status === paymentStatus);
     }
   },
 
   async search(query: string): Promise<Booking[]> {
     try {
-      const response = await databases.listDocuments(
-        databaseId,
-        collections.bookings,
-        [Query.search('customer_name', query)]
-      );
-      return response.documents as unknown as Booking[];
+      const { data, error } = await supabase
+        .from('bookings')
+        .select('*')
+        .or(`attendee_name.ilike.%${query}%,attendee_email.ilike.%${query}%`)
+        .order('created_at', { ascending: false })
+      if (error) throw error
+      const all = await this.getAll()
+      const q = query.toLowerCase()
+      return all.filter(b =>
+        b.customer_name.toLowerCase().includes(q) ||
+        b.customer_email.toLowerCase().includes(q) ||
+        b.event_name.toLowerCase().includes(q)
+      )
     } catch (error) {
-      console.warn('Appwrite not accessible, using sample data:', error);
+      console.warn('Supabase not accessible, using sample data:', error);
       return sampleBookings.filter(booking => 
         booking.customer_name.toLowerCase().includes(query.toLowerCase()) ||
         booking.customer_email.toLowerCase().includes(query.toLowerCase()) ||
@@ -220,15 +382,14 @@ export const bookingsApi = {
 
   async getTotalRevenue(): Promise<number> {
     try {
-      const response = await databases.listDocuments(
-        databaseId,
-        collections.bookings,
-        [Query.equal('payment_status', 'completed')]
-      );
-      const bookings = response.documents as unknown as Booking[];
-      return bookings.reduce((total, booking) => total + booking.amount, 0);
+      const { data, error } = await supabase
+        .from('bookings')
+        .select('payment_amount')
+        .eq('payment_status', 'completed')
+      if (error) throw error
+      return (data || []).reduce((sum: number, r: any) => sum + Number(r.payment_amount || 0), 0)
     } catch (error) {
-      console.warn('Appwrite not accessible, using sample data:', error);
+      console.warn('Supabase not accessible, using sample data:', error);
       return sampleBookings
         .filter(booking => booking.payment_status === 'completed')
         .reduce((total, booking) => total + booking.amount, 0);

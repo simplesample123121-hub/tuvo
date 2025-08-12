@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -22,6 +23,8 @@ function LoginContent() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [magicSending, setMagicSending] = useState(false)
+  const [magicSent, setMagicSent] = useState('')
 
   const redirectUrl = searchParams.get('redirect') || '/dashboard'
 
@@ -52,6 +55,24 @@ function LoginContent() {
       ...prev,
       [e.target.name]: e.target.value
     }))
+  }
+
+  const handleSendMagicLink = async () => {
+    try {
+      setError('')
+      setMagicSent('')
+      setMagicSending(true)
+      const { error } = await supabase.auth.signInWithOtp({
+        email: formData.email,
+        options: { emailRedirectTo: `${window.location.origin}/auth/login` }
+      })
+      if (error) throw error
+      setMagicSent('Magic link sent. Please check your email.')
+    } catch (err: any) {
+      setError(err.message || 'Failed to send magic link')
+    } finally {
+      setMagicSending(false)
+    }
   }
 
   return (
@@ -173,6 +194,14 @@ function LoginContent() {
                     Sign up
                   </Link>
                 </p>
+                <div className="mt-4 space-y-2">
+                  {magicSent && (
+                    <p className="text-xs text-green-600">{magicSent}</p>
+                  )}
+                  <Button type="button" variant="outline" className="w-full" onClick={handleSendMagicLink} disabled={magicSending || !formData.email}>
+                    {magicSending ? 'Sending magic link...' : 'Send magic link to email'}
+                  </Button>
+                </div>
               </div>
             </form>
           </CardContent>

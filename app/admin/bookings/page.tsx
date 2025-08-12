@@ -16,7 +16,7 @@ import {
   Trash2,
   Calendar,
   User,
-  DollarSign,
+  IndianRupee,
   CreditCard,
   CheckCircle,
   XCircle,
@@ -300,12 +300,12 @@ export default function BookingsPage() {
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <IndianRupee className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatPrice(totalRevenue)}</div>
+            <div className="text-2xl font-bold">{formatPrice(totalRevenue, 'INR')}</div>
             <p className="text-xs text-muted-foreground">
               From completed payments
             </p>
@@ -360,7 +360,16 @@ export default function BookingsPage() {
                 <SelectItem value="failed">Failed</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="outline" className="w-full">
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={() => {
+                setSearchQuery('')
+                setSelectedStatus('all')
+                setSelectedPaymentStatus('all')
+                setSelectedEvent('all')
+              }}
+            >
               <Filter className="h-4 w-4 mr-2" />
               Clear Filters
             </Button>
@@ -394,7 +403,7 @@ export default function BookingsPage() {
                 </div>
                 <div className="flex items-center space-x-4">
                                      <div className="text-right">
-                     <p className="font-medium">{formatPrice(booking.amount)}</p>
+                     <p className="font-medium">{formatPrice(booking.amount, 'INR')}</p>
                      <p className="text-sm text-muted-foreground">{formatDate(booking.created_at || '')}</p>
                    </div>
                   <div className="flex gap-1">

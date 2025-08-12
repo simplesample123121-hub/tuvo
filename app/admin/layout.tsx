@@ -11,7 +11,6 @@ import {
   LayoutDashboard, 
   Calendar, 
   Users, 
-  BarChart3, 
   Settings, 
   LogOut,
   Menu,
@@ -25,7 +24,6 @@ const navigation = [
   { name: 'Events', href: '/admin/events', icon: Calendar },
   { name: 'Bookings', href: '/admin/bookings', icon: Users },
   { name: 'Users', href: '/admin/users', icon: User },
-  { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
   { name: 'Settings', href: '/admin/settings', icon: Settings },
 ]
 

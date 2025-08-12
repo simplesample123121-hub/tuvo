@@ -6,8 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { CheckCircle, Download, Mail, Calendar, MapPin, User, AlertCircle } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
-import { databases, databaseId, collections } from '@/lib/appwrite'
-import { ID } from 'appwrite'
+// Appwrite removed; booking is persisted server-side
 
 interface PaymentSuccessData {
   txnid: string
@@ -108,21 +107,25 @@ export default function PaymentSuccessPage() {
           let eventData = null
           
           // Try to parse product info
-          if (paymentData.productinfo) {
-            try {
-              eventData = JSON.parse(paymentData.productinfo)
-              console.log('✅ Successfully parsed product info:', eventData)
-            } catch (e) {
-              console.error('❌ Failed to parse product info:', e)
-              // Try to get event data from stored data
-              if (storedData?.product) {
-                eventData = storedData.product
-                console.log('✅ Using event data from stored data:', eventData)
-              }
-            }
-          } else if (storedData?.product) {
+          // Prefer storedData.product (reliable) over parsing productinfo from query
+          if (storedData?.product) {
             eventData = storedData.product
             console.log('✅ Using event data from stored data:', eventData)
+          } else if (paymentData.productinfo) {
+            // Best-effort: attempt to decode but never throw
+            try {
+              const raw = paymentData.productinfo as string
+              const decoded = decodeURIComponent(raw.replace(/\+/g, ' '))
+                .replace(/&quot;/g, '"')
+                .replace(/&apos;/g, "'")
+                .replace(/&amp;/g, '&')
+              const maybe = JSON.parse(decoded)
+              if (maybe && typeof maybe === 'object') {
+                eventData = maybe
+              }
+            } catch {
+              // ignore
+            }
           }
 
           // Create booking record with available data
@@ -150,25 +153,12 @@ export default function PaymentSuccessPage() {
 
           console.log('💾 Attempting to create booking record:', bookingRecord)
           
-          // Try to save to database
-          try {
-            const createdBooking = await databases.createDocument(
-              databaseId,
-              collections.bookings,
-              ID.unique(),
-              bookingRecord
-            )
-            console.log('✅ Booking created successfully:', createdBooking)
-            setBookingData(createdBooking)
-          } catch (dbError) {
-            console.error('❌ Database error:', dbError)
-            // Create a local booking record if database fails
-            setBookingData({
-              ...bookingRecord,
-              $id: 'temp_' + Date.now(),
-              error: 'Booking saved locally but database sync failed'
-            })
-          }
+          // Client-side DB write removed to avoid Appwrite schema errors.
+          // The booking is persisted server-side in /api/payment/verify/[txnid].
+          setBookingData({
+            ...bookingRecord,
+            $id: 'temp_' + Date.now(),
+          })
         }
 
         // Clean up stored payment data
@@ -362,7 +352,7 @@ Thank you for your booking!
               <div className="flex justify-between items-center">
                 <span className="font-medium">Total Amount</span>
                 <span className="text-xl font-bold text-green-600">
-                  ${bookingData?.amount || 0}
+                  ₹{bookingData?.amount || 0}
                 </span>
               </div>
             </div>

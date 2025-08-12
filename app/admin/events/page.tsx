@@ -10,8 +10,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Plus, Edit, Trash2, Search, Filter, Calendar, MapPin, Users, DollarSign } from 'lucide-react'
+import { Plus, Edit, Trash2, Search, Filter, Calendar, MapPin, Users, IndianRupee } from 'lucide-react'
+import { EVENT_CATEGORIES } from '@/lib/categories'
+import { formatPrice } from '@/lib/utils'
 import { eventsApi, Event } from '@/lib/api/events'
+import Image from 'next/image'
+import { supabase } from '@/lib/supabase'
 
 export default function AdminEventsPage() {
   const [events, setEvents] = useState<Event[]>([])
@@ -48,6 +52,8 @@ export default function AdminEventsPage() {
       }
     })
   })
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imageUploading, setImageUploading] = useState(false)
 
   useEffect(() => {
     loadEvents()
@@ -71,6 +77,23 @@ export default function AdminEventsPage() {
   const handleCreateEvent = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
+      setError('')
+      setImageUploading(true)
+      let imageUrl = formData.image_url
+      if (imageFile) {
+        const filePath = `events/${Date.now()}-${imageFile.name}`
+        const { error: upErr } = await supabase.storage.from('event-images').upload(filePath, imageFile, {
+          upsert: true,
+          contentType: imageFile.type || 'image/jpeg'
+        })
+        if (upErr) {
+          console.error('Image upload error:', upErr)
+        } else {
+          const { data: pub } = supabase.storage.from('event-images').getPublicUrl(filePath)
+          if (pub?.publicUrl) imageUrl = pub.publicUrl
+        }
+      }
+
       const newEvent = await eventsApi.create({
         ...formData,
         price: parseFloat(formData.price),
@@ -79,7 +102,8 @@ export default function AdminEventsPage() {
         tags: formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
         created_by: 'admin',
         status: formData.status as 'upcoming' | 'ongoing' | 'completed',
-        location: formData.location
+        location: formData.location,
+        image_url: imageUrl
       })
 
       if (newEvent) {
@@ -87,9 +111,11 @@ export default function AdminEventsPage() {
         setShowCreateDialog(false)
         resetForm()
       }
+      setImageUploading(false)
     } catch (error) {
       console.error('Error creating event:', error)
       setError('Failed to create event')
+      setImageUploading(false)
     }
   }
 
@@ -98,6 +124,39 @@ export default function AdminEventsPage() {
     if (!editingEvent) return
 
     try {
+      setError('')
+      setImageUploading(true)
+      let imageUrl = formData.image_url
+      if (imageFile) {
+        // If the existing image URL points to our bucket and has same filename, skip re-upload
+        const currentUrl = formData.image_url || ''
+        const currentName = (() => {
+          try {
+            const u = new URL(currentUrl)
+            const parts = u.pathname.split('/')
+            const last = parts[parts.length - 1]
+            return decodeURIComponent(last || '')
+          } catch {
+            return ''
+          }
+        })()
+        if (currentUrl.includes('/storage/v1/object/public/event-images/') && currentName === imageFile.name) {
+          // keep existing imageUrl
+        } else {
+        const filePath = `events/${Date.now()}-${imageFile.name}`
+        const { error: upErr } = await supabase.storage.from('event-images').upload(filePath, imageFile, {
+          upsert: true,
+          contentType: imageFile.type || 'image/jpeg'
+        })
+        if (upErr) {
+          console.error('Image upload error:', upErr)
+        } else {
+          const { data: pub } = supabase.storage.from('event-images').getPublicUrl(filePath)
+          if (pub?.publicUrl) imageUrl = pub.publicUrl
+        }
+        }
+      }
+
       const updatedEvent = await eventsApi.update(editingEvent.$id, {
         ...formData,
         price: parseFloat(formData.price),
@@ -105,7 +164,8 @@ export default function AdminEventsPage() {
         available_tickets: parseInt(formData.available_tickets),
         tags: formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
         status: formData.status as 'upcoming' | 'ongoing' | 'completed',
-        location: formData.location
+        location: formData.location,
+        image_url: imageUrl
       })
 
       if (updatedEvent) {
@@ -115,9 +175,11 @@ export default function AdminEventsPage() {
         setEditingEvent(null)
         resetForm()
       }
+      setImageUploading(false)
     } catch (error) {
       console.error('Error updating event:', error)
       setError('Failed to update event')
+      setImageUploading(false)
     }
   }
 
@@ -240,12 +302,9 @@ export default function AdminEventsPage() {
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Technology">Technology</SelectItem>
-                      <SelectItem value="Music">Music</SelectItem>
-                      <SelectItem value="Sports">Sports</SelectItem>
-                      <SelectItem value="Business">Business</SelectItem>
-                      <SelectItem value="Education">Education</SelectItem>
-                      <SelectItem value="Entertainment">Entertainment</SelectItem>
+                      {EVENT_CATEGORIES.map(cat => (
+                        <SelectItem key={cat.id} value={cat.name}>{cat.name}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -335,14 +394,29 @@ export default function AdminEventsPage() {
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 />
               </div>
-              <div>
-                <Label htmlFor="image_url">Image URL</Label>
-                <Input
-                  id="image_url"
-                  type="url"
-                  value={formData.image_url}
-                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="image_url">Image URL</Label>
+                  <Input
+                    id="image_url"
+                    type="url"
+                    placeholder="https://..."
+                    value={formData.image_url}
+                    onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="image_file">Or Upload Image</Label>
+                  <Input
+                    id="image_file"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                  />
+                  {imageFile && (
+                    <p className="text-xs text-muted-foreground mt-1">Selected: {imageFile.name}</p>
+                  )}
+                </div>
               </div>
               <div>
                 <Label htmlFor="tags">Tags (comma-separated)</Label>
@@ -398,12 +472,9 @@ export default function AdminEventsPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All categories</SelectItem>
-                  <SelectItem value="Technology">Technology</SelectItem>
-                  <SelectItem value="Music">Music</SelectItem>
-                  <SelectItem value="Sports">Sports</SelectItem>
-                  <SelectItem value="Business">Business</SelectItem>
-                  <SelectItem value="Education">Education</SelectItem>
-                  <SelectItem value="Entertainment">Entertainment</SelectItem>
+                  {EVENT_CATEGORIES.map(cat => (
+                    <SelectItem key={cat.id} value={cat.name}>{cat.name}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -443,7 +514,18 @@ export default function AdminEventsPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredEvents.map((event) => (
-            <Card key={event.$id} className="hover:shadow-lg transition-shadow">
+            <Card key={event.$id} className="hover:shadow-lg transition-shadow overflow-hidden">
+              {event.image_url && (
+                <div className="relative w-full h-40">
+                  <Image
+                    src={event.image_url}
+                    alt={event.name}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  />
+                </div>
+              )}
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div>
@@ -482,8 +564,8 @@ export default function AdminEventsPage() {
                   {event.available_tickets} tickets left
                 </div>
                 <div className="flex items-center text-sm text-muted-foreground">
-                  <DollarSign className="w-4 h-4 mr-2" />
-                  ${event.price}
+                  <IndianRupee className="w-4 h-4 mr-2" />
+                  {formatPrice(event.price || 0, 'INR')}
                 </div>
                 <div className="flex space-x-2">
                   <Badge variant={event.status === 'upcoming' ? 'default' : event.status === 'ongoing' ? 'secondary' : 'outline'}>
@@ -526,12 +608,9 @@ export default function AdminEventsPage() {
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Technology">Technology</SelectItem>
-                    <SelectItem value="Music">Music</SelectItem>
-                    <SelectItem value="Sports">Sports</SelectItem>
-                    <SelectItem value="Business">Business</SelectItem>
-                    <SelectItem value="Education">Education</SelectItem>
-                    <SelectItem value="Entertainment">Entertainment</SelectItem>
+                    {EVENT_CATEGORIES.map(cat => (
+                      <SelectItem key={cat.id} value={cat.name}>{cat.name}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
