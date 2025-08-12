@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { EVENT_CATEGORIES } from '@/lib/categories'
 import EventCard from '@/components/event-card'
@@ -11,6 +11,14 @@ import { Button } from '@/components/ui/button'
 import { eventsApi, Event } from '@/lib/api/events'
 
 export default function EventsPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 dark:bg-gray-900"><div className="container px-4 py-12 mx-auto">Loading events...</div></div>}>
+      <EventsContent />
+    </Suspense>
+  )
+}
+
+function EventsContent() {
   const searchParams = useSearchParams()
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
