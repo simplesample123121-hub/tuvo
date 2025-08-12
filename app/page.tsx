@@ -5,6 +5,7 @@ import { Categories } from '@/components/categories'
 import { Features } from '@/components/features'
 import { Footer } from '@/components/footer'
 import { ErrorBoundary } from '@/components/error-boundary'
+import { MobileDebug } from '@/components/mobile-debug'
 
 function LoadingFallback() {
   return (
@@ -32,7 +33,8 @@ export default function HomePage() {
           </Suspense>
         </main>
         <Footer />
+        <MobileDebug />
       </div>
     </ErrorBoundary>
   )
-} 
+}

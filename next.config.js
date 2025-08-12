@@ -37,14 +37,8 @@ const nextConfig = {
   serverExternalPackages: ['@sendgrid/mail'],
   transpilePackages: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-label', '@radix-ui/react-select', '@radix-ui/react-slot', '@radix-ui/react-tabs', '@radix-ui/react-toast', '@radix-ui/react-tooltip'],
   
-  // Development server optimizations to prevent file system errors
-  experimental: {
-    // Disable middleware manifest to prevent the error
-    middleware: {
-      skipMiddlewareUrlNormalize: true,
-      skipTrailingSlashRedirect: true,
-    },
-  },
+  // Remove deprecated experimental flags for Next 15
+  experimental: {},
   
   // Webpack configuration to handle file system issues
   webpack: (config, { dev, isServer }) => {
@@ -70,4 +64,4 @@ const nextConfig = {
   },
 }
 
-module.exports = nextConfig 
+module.exports = nextConfig

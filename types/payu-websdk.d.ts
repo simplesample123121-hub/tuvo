@@ -1,20 +1,4 @@
 declare module 'payu-websdk' {
-  interface PayUConfig {
-    key: string;
-    salt: string;
-    txnid: string;
-    amount: number;
-    productinfo: string;
-    firstname: string;
-    email: string;
-    phone?: string;
-    surl?: string;
-    furl?: string;
-    curl?: string;
-    hash?: string;
-    mode?: string;
-  }
-
   interface PayUTransactionData {
     isAmountFilledByCustomer: boolean;
     txnid: string;
@@ -26,34 +10,40 @@ declare module 'payu-websdk' {
     phone: string;
     surl: string;
     furl: string;
-    hash: string;
+    hash: { v1: string; v2: string } | string;
   }
 
   interface PayUResponse {
     status: string;
-    message: string;
+    message?: string;
     txnid?: string;
     error_code?: string;
-    [key: string]: any; // Allow additional properties like HTML content
+    [key: string]: any;
+  }
+
+  interface PayUVerifyTransactionDetails {
+    status: string;
+    message?: string;
+    txnid: string;
+    amt?: string | number; // PayU often returns 'amt'
+    amount?: string | number; // Some variants return 'amount'
+    productinfo?: string;
+    firstname?: string;
+    email?: string;
+    phone?: string;
+    hash?: string;
+    mihpayid?: string;
+    bank_ref_num?: string;
+    bankcode?: string;
+    mode?: string;
+    error_code?: string;
+    error_Message?: string;
+    addedon?: string;
   }
 
   interface PayUVerifyResponse {
     transaction_details: {
-      [txnid: string]: {
-        status: string;
-        message: string;
-        txnid: string;
-        amount: number;
-        productinfo: string;
-        firstname: string;
-        email: string;
-        phone: string;
-        hash: string;
-        bank_ref_num?: string;
-        bankcode?: string;
-        error_code?: string;
-        error_Message?: string;
-      };
+      [txnid: string]: PayUVerifyTransactionDetails;
     };
   }
 
@@ -64,4 +54,4 @@ declare module 'payu-websdk' {
   }
 
   export default PayU;
-} 
+}

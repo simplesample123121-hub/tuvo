@@ -28,7 +28,7 @@ export default function RegisterPage() {
   const [success, setSuccess] = useState('')
 
   // Get redirect URL from query parameters
-  const redirectUrl = searchParams.get('redirect') || '/dashboard'
+  const redirectUrl = searchParams?.get('redirect') || '/dashboard'
 
   // Redirect if already authenticated
   useEffect(() => {

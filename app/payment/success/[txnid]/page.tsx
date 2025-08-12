@@ -11,11 +11,14 @@ import { ID } from 'appwrite'
 
 interface PaymentSuccessData {
   txnid: string
+  mihpayid?: string
   amount: string
   status: string
   productinfo: string
   email: string
   firstname: string
+  bank_ref_num?: string
+  mode?: string
 }
 
 export default function PaymentSuccessPage() {
@@ -61,13 +64,41 @@ export default function PaymentSuccessPage() {
           user: user ? { id: user.$id, email: user.email } : null
         })
 
+        // Verify payment with backend
+        const verificationResponse = await fetch(`/api/payment/verify/${txnid}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            ...urlParamsObj,
+            storedData
+          })
+        })
+
+        if (!verificationResponse.ok) {
+          throw new Error('Payment verification failed')
+        }
+
+        const verificationResult = await verificationResponse.json()
+        console.log('✅ Payment verification result:', verificationResult)
+
+        // If verification failed, redirect to failure page
+        if (verificationResult.status !== 'success') {
+          router.push(`/payment/failure/${txnid}?error_message=${encodeURIComponent(verificationResult.error_message || 'Payment verification failed')}`)
+          return
+        }
+
         const paymentData: PaymentSuccessData = {
-          txnid: txnid,
-          amount: urlParams.get('amount') || storedData?.amount || '',
-          status: urlParams.get('status') || 'success',
-          productinfo: urlParams.get('productinfo') || storedData?.productinfo || '',
-          email: urlParams.get('email') || storedData?.email || '',
-          firstname: urlParams.get('firstname') || storedData?.firstname || ''
+          txnid: verificationResult.txnid,
+          mihpayid: verificationResult.mihpayid,
+          amount: verificationResult.amount,
+          status: verificationResult.status,
+          productinfo: verificationResult.productinfo,
+          email: verificationResult.email,
+          firstname: verificationResult.firstname,
+          bank_ref_num: verificationResult.bank_ref_num,
+          mode: verificationResult.mode
         }
 
         console.log('📊 Final payment data:', paymentData)
@@ -106,6 +137,9 @@ export default function PaymentSuccessPage() {
             payment_method: 'PayU',
             payment_status: 'completed',
             transaction_id: paymentData.txnid,
+            mihpayid: paymentData.mihpayid,
+            bank_ref_num: paymentData.bank_ref_num,
+            payment_mode: paymentData.mode,
             booking_status: 'confirmed',
             customer_name: paymentData.firstname || 'Customer',
             customer_email: paymentData.email || 'customer@example.com',
@@ -173,7 +207,7 @@ export default function PaymentSuccessPage() {
     }
 
     return () => clearTimeout(timeout)
-  }, [txnid, user, loading])
+  }, [txnid, user, loading, router])
 
   const handleDownloadTicket = () => {
     const ticketData = {
@@ -184,7 +218,10 @@ export default function PaymentSuccessPage() {
       eventLocation: bookingData?.event_location || 'TBD',
       ticketType: bookingData?.ticket_type || 'General',
       quantity: bookingData?.quantity || 1,
-      amount: bookingData?.amount || 0
+      amount: bookingData?.amount || 0,
+      transactionId: txnid,
+      mihpayid: bookingData?.mihpayid || 'N/A',
+      bankRefNum: bookingData?.bank_ref_num || 'N/A'
     }
 
     const ticketContent = `
@@ -198,7 +235,9 @@ Location: ${ticketData.eventLocation}
 Ticket Type: ${ticketData.ticketType}
 Quantity: ${ticketData.quantity}
 Amount: $${ticketData.amount}
-Transaction ID: ${txnid}
+Transaction ID: ${ticketData.transactionId}
+Payment ID: ${ticketData.mihpayid}
+Bank Reference: ${ticketData.bankRefNum}
 
 Thank you for your booking!
     `.trim()
@@ -282,6 +321,9 @@ Thank you for your booking!
             <CardTitle>Booking Details</CardTitle>
             <CardDescription>
               Transaction ID: {txnid}
+              {bookingData?.mihpayid && (
+                <> | Payment ID: {bookingData.mihpayid}</>
+              )}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -360,4 +402,4 @@ Thank you for your booking!
       </div>
     </div>
   )
-} 
+}

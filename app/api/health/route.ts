@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 export async function GET(request: NextRequest) {
   const userAgent = request.headers.get('user-agent') || 'Unknown'
   const isMobile = /Mobile|Android|iPhone|iPad/.test(userAgent)
-  
+
   const healthData = {
     status: 'healthy',
     timestamp: new Date().toISOString(),
@@ -23,4 +23,4 @@ export async function GET(request: NextRequest) {
       'Expires': '0'
     }
   })
-} 
+}

@@ -8,10 +8,13 @@ import { XCircle, RefreshCw, Mail, ArrowLeft, AlertTriangle } from 'lucide-react
 
 interface PaymentFailureData {
   txnid: string
+  mihpayid?: string
   amount: string
   status: string
   error_message: string
   productinfo: string
+  bank_ref_num?: string
+  mode?: string
 }
 
 export default function PaymentFailurePage() {
@@ -19,26 +22,89 @@ export default function PaymentFailurePage() {
   const router = useRouter()
   const [paymentData, setPaymentData] = useState<PaymentFailureData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [debugInfo, setDebugInfo] = useState<any>({})
 
   const txnid = params.txnid as string
 
   useEffect(() => {
-    const handlePaymentFailure = () => {
+    const handlePaymentFailure = async () => {
       try {
+        console.log('🔍 Processing payment failure for txnid:', txnid)
+
         // Get payment data from URL parameters
         const urlParams = new URLSearchParams(window.location.search)
+        const urlParamsObj = Object.fromEntries(urlParams.entries())
+        console.log('📋 URL Parameters:', urlParamsObj)
+
+        // Check for stored data
+        const storedPaymentData = localStorage.getItem('paymentData')
+        let storedData = null
+        if (storedPaymentData) {
+          try {
+            storedData = JSON.parse(storedPaymentData)
+            console.log('💾 Stored payment data found:', storedData)
+          } catch (e) {
+            console.log('❌ Failed to parse stored payment data:', e)
+          }
+        }
+
+        // Set debug info
+        setDebugInfo({
+          txnid,
+          urlParams: urlParamsObj,
+          storedData
+        })
+
+        // Verify payment with backend
+        const verificationResponse = await fetch(`/api/payment/verify/${txnid}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            ...urlParamsObj,
+            storedData
+          })
+        })
+
+        if (!verificationResponse.ok) {
+          throw new Error('Payment verification failed')
+        }
+
+        const verificationResult = await verificationResponse.json()
+        console.log('✅ Payment verification result:', verificationResult)
+
+        // If verification shows success, redirect to success page
+        if (verificationResult.status === 'success') {
+          router.push(`/payment/success/${txnid}`)
+          return
+        }
+
         const data: PaymentFailureData = {
-          txnid: txnid,
-          amount: urlParams.get('amount') || '',
-          status: urlParams.get('status') || 'failed',
-          error_message: urlParams.get('error_message') || 'Payment failed',
-          productinfo: urlParams.get('productinfo') || ''
+          txnid: verificationResult.txnid,
+          mihpayid: verificationResult.mihpayid,
+          amount: verificationResult.amount || urlParams.get('amount') || '',
+          status: verificationResult.status || 'failed',
+          error_message: verificationResult.error_message || urlParams.get('error_message') || 'Payment failed',
+          productinfo: verificationResult.productinfo || urlParams.get('productinfo') || '',
+          bank_ref_num: verificationResult.bank_ref_num,
+          mode: verificationResult.mode
         }
 
         setPaymentData(data)
         setLoading(false)
+
+        // Clean up stored payment data
+        localStorage.removeItem('paymentData')
       } catch (error) {
         console.error('Error processing payment failure:', error)
+        setPaymentData({
+          txnid,
+          amount: '0',
+          status: 'failed',
+          error_message: 'Failed to process payment failure: ' + (error as Error).message,
+          productinfo: ''
+        })
         setLoading(false)
       }
     }
@@ -46,7 +112,7 @@ export default function PaymentFailurePage() {
     if (txnid) {
       handlePaymentFailure()
     }
-  }, [txnid])
+  }, [txnid, router])
 
   const handleRetryPayment = () => {
     // Parse product info to get event details for retry
@@ -73,15 +139,18 @@ Hello Support Team,
 I encountered a payment failure with the following details:
 
 Transaction ID: ${txnid}
+Payment ID: ${paymentData?.mihpayid || 'N/A'}
 Amount: $${paymentData?.amount}
 Error: ${paymentData?.error_message}
+Bank Reference: ${paymentData?.bank_ref_num || 'N/A'}
+Payment Mode: ${paymentData?.mode || 'N/A'}
 
 Please help me resolve this issue.
 
 Thank you.
     `)
     
-    window.open(`mailto:support@eventbooker.com?subject=${subject}&body=${body}`)
+    window.open(`mailto:support@tuvo.in?subject=${subject}&body=${body}`)
   }
 
   if (loading) {
@@ -115,6 +184,9 @@ Thank you.
             <CardTitle>Payment Details</CardTitle>
             <CardDescription>
               Transaction ID: {txnid}
+              {paymentData?.mihpayid && (
+                <> | Payment ID: {paymentData.mihpayid}</>
+              )}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -139,6 +211,18 @@ Thank you.
                 <p className="text-sm font-medium text-gray-500">Status</p>
                 <p className="text-lg font-semibold text-red-600">Failed</p>
               </div>
+              {paymentData?.bank_ref_num && (
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Bank Reference</p>
+                  <p className="text-lg font-semibold">{paymentData.bank_ref_num}</p>
+                </div>
+              )}
+              {paymentData?.mode && (
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Payment Mode</p>
+                  <p className="text-lg font-semibold">{paymentData.mode}</p>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -176,10 +260,24 @@ Thank you.
         </div>
 
         <div className="mt-8 text-center text-sm text-gray-500">
-          <p>Need help? Contact our support team at support@eventbooker.com</p>
+          <p>Need help? Contact our support team at support@tuvo.in</p>
           <p>Or call us at +1 (555) 123-4567</p>
         </div>
+
+        {/* Debug information (only show in development) */}
+        {process.env.NODE_ENV === 'development' && (
+          <Card className="mt-8">
+            <CardHeader>
+              <CardTitle className="text-sm">Debug Information</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <pre className="text-xs bg-gray-100 p-2 rounded overflow-auto">
+                {JSON.stringify(debugInfo, null, 2)}
+              </pre>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   )
-} 
+}

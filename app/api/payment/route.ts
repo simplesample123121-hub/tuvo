@@ -14,16 +14,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create PayU transaction (matching the working implementation)
+    // Create PayU transaction
     const data = await createPayUTransaction({
       amount,
-      productinfo: JSON.stringify(product), // This matches the working implementation
+      productinfo: JSON.stringify(product),
       firstname,
       email,
       mobile
     })
-
-    console.log('PayU transaction created:', data)
 
     // Return the HTML form directly as text
     return new Response(String(data), {
@@ -41,4 +39,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
-} 
+}

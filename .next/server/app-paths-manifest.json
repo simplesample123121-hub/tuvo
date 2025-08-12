@@ -1,8 +1,7 @@
 {
-  "/events/[id]/page": "app/events/[id]/page.js",
+  "/api/payment/route": "app/api/payment/route.js",
   "/events/[id]/book/page": "app/events/[id]/book/page.js",
-  "/auth/login/page": "app/auth/login/page.js",
-  "/events/page": "app/events/page.js",
+  "/events/[id]/page": "app/events/[id]/page.js",
   "/page": "app/page.js",
-  "/dashboard/page": "app/dashboard/page.js"
+  "/events/page": "app/events/page.js"
 }
