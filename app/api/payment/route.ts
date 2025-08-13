@@ -20,7 +20,13 @@ export async function POST(request: NextRequest) {
       productinfo: JSON.stringify(product),
       firstname,
       email,
-      mobile
+      mobile,
+      // Pass important metadata via UDFs for reliable server-side reconstruction
+      udf1: String(product?.eventId || ''),
+      udf2: String(product?.userId || ''),
+      udf3: String(product?.ticketType || ''),
+      udf4: String(product?.quantity ?? ''),
+      udf5: String(product?.bookingId || ''),
     })
 
     // Return the HTML form directly as text

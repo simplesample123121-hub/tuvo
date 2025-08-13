@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/supabase'
 import { PAYU_CONFIG } from '@/lib/payu.config'
+import { EMAIL_CONFIG, DEV_EMAIL_OVERRIDES } from '@/lib/email.config'
 
 export async function GET() {
   const result: any = {
@@ -29,11 +30,11 @@ export async function GET() {
   }
 
   // Email configuration presence
-  const hasEmailConfig = !!(
-    process.env.SENDGRID_API_KEY ||
-    (process.env.SMTP_HOST && process.env.SMTP_USER)
+  const hasResend = !!(DEV_EMAIL_OVERRIDES.RESEND_API_KEY || EMAIL_CONFIG.RESEND_API_KEY)
+  const hasSmtp = !!(
+    EMAIL_CONFIG.SMTP_HOST && EMAIL_CONFIG.SMTP_USER && (process.env.SMTP_PASS || EMAIL_CONFIG.SMTP_PASS)
   )
-  result.email = hasEmailConfig ? 'configured' : 'not_configured'
+  result.email = hasResend ? 'resend_configured' : hasSmtp ? 'smtp_configured' : 'not_configured'
 
   return NextResponse.json(result)
 }

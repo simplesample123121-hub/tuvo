@@ -31,12 +31,14 @@ import { formatPrice, formatDate, formatTime } from '@/lib/utils'
 import Image from 'next/image'
 import jsPDF from 'jspdf'
 import QRCode from 'qrcode'
+import { useToast } from '@/hooks/use-toast'
 
 interface UserBooking {
   $id: string;
   user_id: string;
   event_id: string;
   event_name: string;
+  event_image_url?: string;
   event_date: string;
   event_location: string;
   ticket_type: string;
@@ -57,10 +59,12 @@ interface UserBooking {
 export default function DashboardPage() {
   const router = useRouter()
   const { user, logout, isAuthenticated, isAdmin } = useAuth()
+  const { toast } = useToast()
   const [bookings, setBookings] = useState<UserBooking[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string>('')
   const [eventsById, setEventsById] = useState<Record<string, any>>({})
+  const [eventsByName, setEventsByName] = useState<Record<string, any>>({})
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<'all' | 'confirmed' | 'pending' | 'cancelled'>('all')
   const [stats, setStats] = useState({
@@ -93,9 +97,15 @@ export default function DashboardPage() {
       
       // Fetch events to enrich with images and latest details
       const events = await eventsApi.getAll()
-      const map: Record<string, any> = {}
-      for (const ev of events) map[ev.$id] = ev
-      setEventsById(map)
+      const mapById: Record<string, any> = {}
+      const mapByName: Record<string, any> = {}
+      const normalize = (v: string) => (v || '').toLowerCase().replace(/\s+/g, ' ').trim()
+      for (const ev of events) {
+        mapById[ev.$id] = ev
+        if (ev.name) mapByName[normalize(ev.name)] = ev
+      }
+      setEventsById(mapById)
+      setEventsByName(mapByName)
 
       const bookingsWithEvents = userBookings
 
@@ -128,7 +138,9 @@ export default function DashboardPage() {
   }
 
   const handleDownloadTicket = async (booking: UserBooking) => {
-    const ev = eventsById[booking.event_id]
+    const normalize = (v: string) => (v || '').toLowerCase().replace(/\s+/g, ' ').trim()
+    const ev = eventsById[booking.event_id] || eventsByName[normalize(booking.event_name)]
+    const imageUrl = booking.event_image_url || ev?.image_url
     const doc = new jsPDF({ unit: 'pt', format: 'a4' })
 
     // Background
@@ -177,12 +189,15 @@ export default function DashboardPage() {
     const innerRight = marginX + ticketWidth - stubWidth - 20
     const innerWidth = innerRight - innerLeft
     const imageHeight = 140
-    if (ev?.image_url) {
+    if (imageUrl) {
       try {
-        const imgData = await fetch(ev.image_url).then(r => r.blob()).then(blob => new Promise<string>((resolve) => {
-          const reader = new FileReader(); reader.onload = () => resolve(reader.result as string); reader.readAsDataURL(blob);
-        }))
-        doc.addImage(imgData, 'JPEG', innerLeft, currentY, innerWidth, imageHeight, undefined, 'SLOW')
+        const blob = await fetch(imageUrl).then(r => r.blob())
+        const dataUrl = await new Promise<string>((resolve) => {
+          const reader = new FileReader(); reader.onload = () => resolve(reader.result as string); reader.readAsDataURL(blob)
+        })
+        const mime = (blob.type || '').toLowerCase()
+        const format = mime.includes('png') || mime.includes('webp') ? 'PNG' : 'JPEG'
+        doc.addImage(dataUrl, format as any, innerLeft, currentY, innerWidth, imageHeight, undefined, 'SLOW')
       } catch {}
     } else {
       // placeholder banner
@@ -320,6 +335,34 @@ export default function DashboardPage() {
               <Search className="h-4 w-4 mr-2" />
               Browse Events
             </Button>
+            <Button
+              variant="outline"
+              onClick={async () => {
+                try {
+                  if (!user?.email) {
+                    toast({ title: 'No email on profile', description: 'Please add an email to your account.', variant: 'destructive' })
+                    return
+                  }
+                  const res = await fetch('/api/test-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ to: user.email }),
+                  })
+                  const data = await res.json()
+                  if (res.ok) {
+                    const provider = data.provider === 'resend' || data.usedResend ? 'Resend' : 'SMTP/Ethereal'
+                    const desc = data.previewUrl ? `Sent via ${provider}. Preview: ${data.previewUrl}` : `Sent via ${provider}. Check your inbox.`
+                    toast({ title: 'Test email sent', description: desc })
+                  } else {
+                    throw new Error(data.error || 'Failed')
+                  }
+                } catch (e: any) {
+                  toast({ title: 'Failed to send test email', description: e.message, variant: 'destructive' })
+                }
+              }}
+            >
+              Send Test Email
+            </Button>
             {isAdmin && (
               <Button variant="outline" onClick={() => router.push('/admin')}>
                 Admin Console
@@ -455,13 +498,16 @@ export default function DashboardPage() {
                         return matchesSearch && matchesStatus
                       })
                       .map((booking) => {
-                        const ev = eventsById[booking.event_id]
+                        const normalize = (v: string) => (v || '').toLowerCase().replace(/\s+/g, ' ').trim()
+                        const ev = eventsById[booking.event_id] || eventsByName[normalize(booking.event_name)]
+                        const imageUrl = booking.event_image_url || ev?.image_url
                         return (
                           <div key={booking.$id} className="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                             <div className="flex gap-4">
-                              {ev?.image_url ? (
-                                <div className="relative w-24 h-24 flex-shrink-0 rounded-md overflow-hidden">
-                                  <Image src={ev.image_url} alt={booking.event_name} fill className="object-cover" />
+                              {imageUrl ? (
+                                <div className="relative w-24 h-24 flex-shrink-0 rounded-md overflow-hidden bg-muted">
+                                  {/* Use unoptimized to ensure cross-origin Supabase images render without loader issues */}
+                                  <Image src={imageUrl} alt={booking.event_name} fill className="object-cover" unoptimized />
                                 </div>
                               ) : (
                                 <div className="w-24 h-24 flex-shrink-0 rounded-md bg-muted flex items-center justify-center">
@@ -494,16 +540,31 @@ export default function DashboardPage() {
                                       </span>
                                     </div>
                                   </div>
-                                  <div className="flex items-center space-x-2">
-                                    <Button variant="outline" size="sm">
-                                      <Eye className="h-4 w-4 mr-1" />
-                                      View
-                                    </Button>
-                                    <Button variant="outline" size="sm" onClick={() => handleDownloadTicket(booking)}>
-                                      <Download className="h-4 w-4 mr-1" />
-                                      Ticket
-                                    </Button>
-                                  </div>
+                                   <div className="flex items-center space-x-2">
+                                     <Button variant="outline" size="sm" onClick={() => handleDownloadTicket(booking)}>
+                                       <Download className="h-4 w-4 mr-1" />
+                                       Download Ticket
+                                     </Button>
+                                     <Button
+                                       variant="outline"
+                                       size="sm"
+                                       onClick={() => {
+                                         // Inline preview: open a new window with the generated PDF blob
+                                         (async () => {
+                                           const normalize = (v: string) => (v || '').toLowerCase().replace(/\s+/g, ' ').trim()
+                                           const ev = eventsById[booking.event_id] || eventsByName[normalize(booking.event_name)]
+                                           const imageUrl = booking.event_image_url || ev?.image_url
+                                           const doc = new jsPDF({ unit: 'pt', format: 'a4' })
+                                           // Simple preview content; reuse same rendering as download path by calling handler then opening blob
+                                           await handleDownloadTicket(booking)
+                                           // Fallback: open last created blob if available (handled by browser save). For a full inline preview flow, we could refactor to return blob.
+                                         })()
+                                       }}
+                                     >
+                                       <Eye className="h-4 w-4 mr-1" />
+                                       View PDF
+                                     </Button>
+                                   </div>
                                 </div>
                               </div>
                             </div>

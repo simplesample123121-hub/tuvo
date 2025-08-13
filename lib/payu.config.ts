@@ -92,7 +92,7 @@ export const createPayUTransaction = async ({
     }
 
     // Use PayU WebSDK to initiate payment
-    const data = await payuClient.paymentInitiate({
+    const txData: any = {
       isAmountFilledByCustomer: false,
       txnid: txnid,
       amount: Number(amountStr),
@@ -105,7 +105,15 @@ export const createPayUTransaction = async ({
       surl: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/payu/success/${txnid}`,
       furl: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/payu/failure/${txnid}`,
       hash: hash
-    })
+    }
+    // Attach UDFs if SDK type doesn't include them
+    txData.udf1 = udf1
+    txData.udf2 = udf2
+    txData.udf3 = udf3
+    txData.udf4 = udf4
+    txData.udf5 = udf5
+
+    const data = await payuClient.paymentInitiate(txData)
 
     return data
 
@@ -119,7 +127,7 @@ export const createPayUTransaction = async ({
 export const verifyPayUPayment = async (txnid: string) => {
   try {
     const verifiedData = await payuClient.verifyPayment(txnid)
-    const data = verifiedData?.transaction_details?.[txnid]
+    const data: any = verifiedData?.transaction_details?.[txnid]
 
     return {
       status: data?.status || 'failed',
@@ -129,6 +137,11 @@ export const verifyPayUPayment = async (txnid: string) => {
       firstname: data?.firstname || '',
       email: data?.email || '',
       mihpayid: data?.mihpayid || '',
+      udf1: (data as any)?.udf1 || '',
+      udf2: (data as any)?.udf2 || '',
+      udf3: (data as any)?.udf3 || '',
+      udf4: (data as any)?.udf4 || '',
+      udf5: (data as any)?.udf5 || '',
       status_message: data?.error_Message || data?.status || 'Unknown status',
       bank_ref_num: data?.bank_ref_num || '',
       mode: data?.mode || '',

@@ -1,10 +1,10 @@
 "use client"
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { CheckCircle, Download, Mail, Calendar, MapPin, User, AlertCircle } from 'lucide-react'
+import { CheckCircle, Download, Calendar, MapPin, User, AlertCircle } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 // Appwrite removed; booking is persisted server-side
 
@@ -28,6 +28,8 @@ export default function PaymentSuccessPage() {
   const [bookingData, setBookingData] = useState<any>(null)
   const [error, setError] = useState('')
   const [debugInfo, setDebugInfo] = useState<any>({})
+  const [emailStatus, setEmailStatus] = useState<{ attempted: boolean; provider: string | null; messageId: string | null; previewUrl: string | null; error: string | null } | null>(null)
+  const processedRef = useRef(false)
 
   const txnid = params.txnid as string
 
@@ -81,6 +83,9 @@ export default function PaymentSuccessPage() {
 
         const verificationResult = await verificationResponse.json()
         console.log('✅ Payment verification result:', verificationResult)
+        if (verificationResult?.emailStatus) {
+          setEmailStatus(verificationResult.emailStatus)
+        }
 
         // If verification failed, redirect to failure page
         if (verificationResult.status !== 'success') {
@@ -192,12 +197,13 @@ export default function PaymentSuccessPage() {
       }
     }, 10000) // 10 second timeout
 
-    if (txnid) {
-      handlePaymentSuccess()
-    }
+    if (!txnid) return
+    if (processedRef.current) return
+    processedRef.current = true
+    handlePaymentSuccess()
 
     return () => clearTimeout(timeout)
-  }, [txnid, user, loading, router])
+  }, [txnid, user, router])
 
   const handleDownloadTicket = () => {
     const ticketData = {
@@ -243,9 +249,9 @@ Thank you for your booking!
     URL.revokeObjectURL(url)
   }
 
-  const handleSendEmail = () => {
-    alert('Confirmation email would be sent to: ' + (bookingData?.customer_email || 'customer@example.com'))
-  }
+  // Test Resend Mail removed per request
+
+  
 
   if (loading) {
     return (
@@ -340,7 +346,6 @@ Thank you for your booking!
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <Mail className="h-5 w-5 text-gray-400" />
                 <div>
                   <p className="text-sm font-medium">Email</p>
                   <p className="text-sm text-gray-600">{bookingData?.customer_email || 'customer@example.com'}</p>
@@ -356,6 +361,22 @@ Thank you for your booking!
                 </span>
               </div>
             </div>
+
+            {process.env.NODE_ENV === 'development' && emailStatus && (
+              <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded">
+                <p className="text-sm text-blue-800">
+                  Email attempted: {String(emailStatus.attempted)} | Provider: {emailStatus.provider || 'n/a'}
+                </p>
+                {emailStatus.error && (
+                  <p className="text-sm text-red-600 mt-1">Error: {emailStatus.error}</p>
+                )}
+                {emailStatus.previewUrl && (
+                  <p className="text-sm mt-1">
+                    Preview: <a className="underline" href={emailStatus.previewUrl} target="_blank" rel="noreferrer">Open</a>
+                  </p>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -364,11 +385,8 @@ Thank you for your booking!
             <Download className="mr-2 h-4 w-4" />
             Download Ticket
           </Button>
-          <Button onClick={handleSendEmail} variant="outline" className="flex-1">
-            <Mail className="mr-2 h-4 w-4" />
-            Send Email
-          </Button>
         </div>
+
 
         <div className="mt-8 text-center">
           <Button onClick={() => router.push('/dashboard')} variant="outline">
@@ -377,6 +395,7 @@ Thank you for your booking!
         </div>
 
         {/* Debug information (only show in development) */}
+        {/* Debug Information commented out per request
         {process.env.NODE_ENV === 'development' && (
           <Card className="mt-8">
             <CardHeader>
@@ -389,6 +408,7 @@ Thank you for your booking!
             </CardContent>
           </Card>
         )}
+        */}
       </div>
     </div>
   )

@@ -6,6 +6,7 @@ export interface Booking {
   user_id: string;
   event_id: string;
   event_name: string;
+  event_image_url?: string;
   event_date: string;
   event_location: string;
   ticket_type: string;
@@ -101,7 +102,8 @@ export const bookingsApi = {
           $id: String(b.id),
           user_id: b.user_id || '',
           event_id: String(b.event_id || ''),
-          event_name: ev?.name || 'Event',
+          event_name: ev?.name || b.notes || 'Event',
+          event_image_url: ev?.image_url || undefined,
           event_date: ev?.date || new Date().toISOString(),
           event_location: ev?.venue || 'TBD',
           ticket_type: b.ticket_type || 'General',
@@ -140,7 +142,8 @@ export const bookingsApi = {
         $id: String(data.id),
         user_id: data.user_id || '',
         event_id: String(data.event_id || ''),
-        event_name: ev?.name || 'Event',
+        event_name: ev?.name || data.notes || 'Event',
+        event_image_url: ev?.image_url || undefined,
         event_date: ev?.date || new Date().toISOString(),
         event_location: ev?.venue || 'TBD',
         ticket_type: data.ticket_type || 'General',
@@ -240,7 +243,8 @@ export const bookingsApi = {
         $id: String(b.id),
         user_id: b.user_id || '',
         event_id: String(b.event_id || ''),
-        event_name: ev?.name || 'Event',
+        event_name: ev?.name || b.notes || 'Event',
+        event_image_url: ev?.image_url || undefined,
         event_date: ev?.date || new Date().toISOString(),
         event_location: ev?.venue || 'TBD',
         ticket_type: b.ticket_type || 'General',
@@ -299,7 +303,8 @@ export const bookingsApi = {
           $id: String(b.id),
           user_id: b.user_id || '',
           event_id: String(b.event_id || ''),
-          event_name: ev?.name || 'Event',
+          event_name: ev?.name || b.notes || 'Event',
+          event_image_url: ev?.image_url || undefined,
           event_date: ev?.date || new Date().toISOString(),
           event_location: ev?.venue || 'TBD',
           ticket_type: b.ticket_type || 'General',
