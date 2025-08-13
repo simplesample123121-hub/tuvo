@@ -335,7 +335,7 @@ export default function DashboardPage() {
               <Search className="h-4 w-4 mr-2" />
               Browse Events
             </Button>
-            <Button
+            {/* <Button
               variant="outline"
               onClick={async () => {
                 try {
@@ -362,7 +362,7 @@ export default function DashboardPage() {
               }}
             >
               Send Test Email
-            </Button>
+            </Button> */}
             {isAdmin && (
               <Button variant="outline" onClick={() => router.push('/admin')}>
                 Admin Console

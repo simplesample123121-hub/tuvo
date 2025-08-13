@@ -58,7 +58,7 @@ export default function HomePage() {
         <Header />
         <main>
           <Hero />
-          <div className="container px-4 mx-auto my-4">
+          {/* <div className="container px-4 mx-auto my-4">
             <div className="flex flex-col sm:flex-row gap-3 items-start">
               <Button onClick={handleTestResendMail} disabled={sending}>
                 {sending ? 'Sending test…' : 'Test Resend Mail'}
@@ -81,7 +81,7 @@ export default function HomePage() {
                 </div>
               )}
             </div>
-          </div>
+          </div> */}
           <Suspense fallback={<LoadingFallback />}>
             <Categories />
           </Suspense>
