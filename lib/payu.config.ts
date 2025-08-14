@@ -129,10 +129,11 @@ export const verifyPayUPayment = async (txnid: string) => {
     const verifiedData = await payuClient.verifyPayment(txnid)
     const data: any = verifiedData?.transaction_details?.[txnid]
 
+    const resolvedAmount = (data as any)?.amount ?? (data as any)?.amt ?? (data as any)?.net_amount_debit ?? '0'
     return {
       status: data?.status || 'failed',
       txnid: data?.txnid || txnid,
-      amount: data?.amt || '0',
+      amount: typeof resolvedAmount === 'number' ? String(resolvedAmount) : String(resolvedAmount || '0'),
       productinfo: data?.productinfo || '',
       firstname: data?.firstname || '',
       email: data?.email || '',

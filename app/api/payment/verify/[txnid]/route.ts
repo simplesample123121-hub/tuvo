@@ -21,11 +21,17 @@ export async function POST(
     const verificationResult = await verifyPayUPayment(txnid)
 
     // Prepare response data
+    const normalizedAmount = (() => {
+      const val = (verificationResult as any)?.amount ?? (verificationResult as any)?.amt ?? amount
+      const n = Number(val)
+      return Number.isFinite(n) ? n : Number.parseFloat(String(val || '0')) || 0
+    })()
+
     const responseData = {
       txnid,
       mihpayid: verificationResult.mihpayid || mihpayid,
       status: verificationResult.status,
-      amount: verificationResult.amount || amount,
+      amount: normalizedAmount,
       productinfo: verificationResult.productinfo || productinfo,
       firstname: verificationResult.firstname || firstname,
       email: verificationResult.email || email,
@@ -93,7 +99,7 @@ export async function POST(
           attendee_age: Number(product?.attendeeAge || 0),
           attendee_address: String(product?.attendeeAddress || 'N/A'),
           payment_status: 'completed',
-          payment_amount: parseFloat(String(responseData.amount || storedData?.amount || '0')) || 0,
+          payment_amount: Number(responseData.amount || storedData?.amount || 0) || 0,
           payment_method: 'PayU',
           qr_code: generateQRCode(responseData.txnid),
           status: 'confirmed',

@@ -60,6 +60,21 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/events/page.js"
+    ],
+    "/api/payu/success/[txnid]/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/payu/success/[txnid]/route.js"
+    ],
+    "/payment/success/[txnid]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/payment/success/[txnid]/page.js"
+    ],
+    "/api/payment/verify/[txnid]/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/payment/verify/[txnid]/route.js"
     ]
   }
 }

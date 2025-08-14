@@ -93,10 +93,11 @@ export default function PaymentSuccessPage() {
           return
         }
 
+        const resolvedAmount = Number(verificationResult.amount ?? verificationResult.amt)
         const paymentData: PaymentSuccessData = {
           txnid: verificationResult.txnid,
           mihpayid: verificationResult.mihpayid,
-          amount: verificationResult.amount,
+          amount: String(Number.isFinite(resolvedAmount) ? resolvedAmount : parseFloat(String(verificationResult.amount || '0')) || 0),
           status: verificationResult.status,
           productinfo: verificationResult.productinfo,
           email: verificationResult.email,
@@ -140,7 +141,7 @@ export default function PaymentSuccessPage() {
             event_name: eventData?.eventName || 'Event Booking',
             ticket_type: eventData?.ticketType || 'General',
             quantity: eventData?.quantity || 1,
-            amount: parseFloat(paymentData.amount) || 0,
+            amount: Number(paymentData.amount) || 0,
             currency: 'USD',
             payment_method: 'PayU',
             payment_status: 'completed',
