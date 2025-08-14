@@ -18,6 +18,8 @@ import {
   User,
   Shield
 } from 'lucide-react'
+import { ArrowLeft, Home } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 const navigation = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
@@ -35,6 +37,7 @@ export default function AdminLayout({
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { user, logout, isSuperAdmin } = useAuth()
+  const router = useRouter()
 
   const handleLogout = async () => {
     await logout()
@@ -182,9 +185,20 @@ export default function AdminLayout({
             </button>
 
             <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
-              <div className="flex flex-1"></div>
+              <div className="flex flex-1">
+                <div className="flex items-center gap-2">
+                  <Button size="sm" variant="ghost" className="lg:hidden" onClick={() => router.back()}>
+                    <ArrowLeft className="h-4 w-4 mr-1" />
+                    Back
+                  </Button>
+                </div>
+              </div>
               <div className="flex items-center gap-x-4 lg:gap-x-6">
                 <ThemeToggle />
+                <Button size="sm" variant="outline" onClick={() => router.push('/dashboard')}>
+                  <Home className="h-4 w-4 mr-2" />
+                  User Dashboard
+                </Button>
               </div>
             </div>
           </div>

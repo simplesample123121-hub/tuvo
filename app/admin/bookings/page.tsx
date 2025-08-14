@@ -245,17 +245,19 @@ export default function BookingsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-3xl font-bold">Bookings Management</h1>
           <p className="text-muted-foreground">
             Manage and track all event bookings
           </p>
         </div>
-        <Button variant="outline">
-          <Download className="h-4 w-4 mr-2" />
-          Export Data
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline">
+            <Download className="h-4 w-4 mr-2" />
+            Export Data
+          </Button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -316,7 +318,7 @@ export default function BookingsPage() {
       {/* Filters */}
       <Card>
         <CardContent className="pt-6">
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
@@ -385,10 +387,10 @@ export default function BookingsPage() {
         <CardContent>
           <div className="space-y-4">
             {filteredBookings.map((booking) => (
-              <div key={booking.$id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                <div className="flex items-center space-x-4">
+              <div key={booking.$id} className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                <div className="flex items-start md:items-center gap-4 md:flex-1">
                   <div className="flex-1">
-                                         <div className="flex items-center gap-2 mb-1">
+                    <div className="flex flex-wrap items-center gap-2 mb-1">
                        <p className="font-medium">{booking.customer_name}</p>
                        <Badge className={getStatusColor(booking.booking_status)}>
                          {booking.booking_status}
@@ -401,8 +403,8 @@ export default function BookingsPage() {
                      <p className="text-sm text-muted-foreground">{booking.customer_email}</p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-4">
-                                     <div className="text-right">
+                <div className="flex items-center justify-between md:justify-end gap-3">
+                  <div className="text-right min-w-[140px]">
                      <p className="font-medium">{formatPrice(booking.amount, 'INR')}</p>
                      <p className="text-sm text-muted-foreground">{formatDate(booking.created_at || '')}</p>
                    </div>

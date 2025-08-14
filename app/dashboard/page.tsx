@@ -313,8 +313,8 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div className="flex items-center space-x-4">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+          <div className="flex items-center gap-4">
             <Avatar className="h-16 w-16">
               <AvatarImage src="" />
               <AvatarFallback className="text-lg">
@@ -330,7 +330,7 @@ export default function DashboardPage() {
               </p>
             </div>
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex flex-wrap items-center gap-2">
             <Button onClick={() => router.push('/events')}>
               <Search className="h-4 w-4 mr-2" />
               Browse Events
@@ -503,7 +503,7 @@ export default function DashboardPage() {
                         const imageUrl = booking.event_image_url || ev?.image_url
                         return (
                           <div key={booking.$id} className="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                            <div className="flex gap-4">
+                            <div className="flex flex-col sm:flex-row gap-4">
                               {imageUrl ? (
                                 <div className="relative w-24 h-24 flex-shrink-0 rounded-md overflow-hidden bg-muted">
                                   {/* Use unoptimized to ensure cross-origin Supabase images render without loader issues */}
@@ -515,7 +515,7 @@ export default function DashboardPage() {
                                 </div>
                               )}
                               <div className="flex-1">
-                                <div className="flex justify-between items-start">
+                                <div className="flex flex-col sm:flex-row sm:justify-between items-start gap-3">
                                   <div>
                                     <h3 className="font-semibold text-lg">{booking.event_name}</h3>
                                     <div className="flex items-center flex-wrap gap-4 mt-2 text-sm text-gray-600 dark:text-gray-400">
@@ -540,7 +540,7 @@ export default function DashboardPage() {
                                       </span>
                                     </div>
                                   </div>
-                                   <div className="flex items-center space-x-2">
+                                   <div className="flex items-center gap-2">
                                      <Button variant="outline" size="sm" onClick={() => handleDownloadTicket(booking)}>
                                        <Download className="h-4 w-4 mr-1" />
                                        Download Ticket

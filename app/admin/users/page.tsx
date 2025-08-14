@@ -186,17 +186,19 @@ export default function UsersPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-3xl font-bold">User Management</h1>
           <p className="text-muted-foreground">
             Manage user accounts, roles, and permissions
           </p>
         </div>
-        <Button onClick={() => setShowCreateModal(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add User
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button onClick={() => setShowCreateModal(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add User
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -205,7 +207,7 @@ export default function UsersPage() {
           <CardTitle>Filters</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             <div className="space-y-2">
               <Label>Search</Label>
               <div className="relative">
@@ -266,8 +268,8 @@ export default function UsersPage() {
           <div className="space-y-4">
             {filteredUsers.map((user) => (
               <div key={user.$id} className="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                  <div className="flex items-center gap-4">
                     <Avatar>
                       <AvatarImage src="" />
                       <AvatarFallback>
@@ -277,20 +279,20 @@ export default function UsersPage() {
                     <div>
                       <h3 className="font-semibold">{user.name}</h3>
                       <p className="text-sm text-muted-foreground">{user.email}</p>
-                      <div className="flex items-center space-x-2 mt-1">
+                      <div className="flex flex-wrap items-center gap-2 mt-1">
                         {getRoleBadge(user.role)}
                         {getStatusBadge(user.status)}
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-4">
+                  <div className="flex items-center gap-4">
                     <div className="text-right">
                       <p className="text-sm font-medium">{user.bookingCount} bookings</p>
                       <p className="text-xs text-muted-foreground">
                         ${user.totalSpent.toFixed(2)} spent
                       </p>
                     </div>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center gap-2">
                       <Button
                         variant="outline"
                         size="sm"
