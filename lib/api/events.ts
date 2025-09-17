@@ -19,6 +19,11 @@ export interface Event {
   location: string; // Changed from object to string to match Appwrite schema
   created_at?: string; // Made optional since Appwrite handles this
   updated_at?: string; // Made optional since Appwrite handles this
+  approval_status?: 'pending' | 'approved' | 'rejected';
+  approval_reason?: string | null;
+  approved_at?: string | null;
+  approved_by?: string | null;
+  submission_source?: 'user' | 'admin';
 }
 
 // Sample data for fallback
@@ -105,6 +110,11 @@ export const eventsApi = {
         location: row.location || '',
         created_at: row.created_at || '',
         updated_at: row.updated_at || '',
+        approval_status: row.approval_status || 'approved',
+        approval_reason: row.approval_reason || null,
+        approved_at: row.approved_at || null,
+        approved_by: row.approved_by || null,
+        submission_source: row.submission_source || 'user',
       }))
     } catch (error) {
       console.warn('Appwrite not accessible, using sample data:', error);
@@ -140,6 +150,11 @@ export const eventsApi = {
         location: data.location || '',
         created_at: data.created_at || '',
         updated_at: data.updated_at || '',
+        approval_status: data.approval_status || 'approved',
+        approval_reason: data.approval_reason || null,
+        approved_at: data.approved_at || null,
+        approved_by: data.approved_by || null,
+        submission_source: data.submission_source || 'user',
       }
     } catch (error) {
       console.warn('Appwrite not accessible, using sample data:', error);
@@ -147,7 +162,7 @@ export const eventsApi = {
     }
   },
 
-  async create(eventData: Omit<Event, '$id' | 'created_at' | 'updated_at'>): Promise<Event | null> {
+  async create(eventData: Omit<Event, '$id' | 'created_at' | 'updated_at' | 'approved_at' | 'approved_by'> & { approval_status?: 'pending' | 'approved' | 'rejected' }): Promise<Event | null> {
     try {
       const payload: any = {
         name: eventData.name,
@@ -165,6 +180,8 @@ export const eventsApi = {
         tags: eventData.tags,
         featured: eventData.featured,
         location: eventData.location,
+        approval_status: eventData.approval_status || 'pending',
+        submission_source: eventData.submission_source || 'user',
       }
       const { data, error } = await supabase
         .from('events')
@@ -178,6 +195,11 @@ export const eventsApi = {
         ...eventData,
         created_at: data.created_at,
         updated_at: data.updated_at,
+        approval_status: data.approval_status || eventData.approval_status || 'pending',
+        approval_reason: data.approval_reason || null,
+        approved_at: data.approved_at || null,
+        approved_by: data.approved_by || null,
+        submission_source: data.submission_source || eventData.submission_source || 'user',
       }
     } catch (error) {
       console.error('Error creating event:', error);
@@ -214,6 +236,11 @@ export const eventsApi = {
         location: data.location,
         created_at: data.created_at,
         updated_at: data.updated_at,
+        approval_status: data.approval_status || 'approved',
+        approval_reason: data.approval_reason || null,
+        approved_at: data.approved_at || null,
+        approved_by: data.approved_by || null,
+        submission_source: data.submission_source || 'user',
       }
     } catch (error) {
       console.error('Error updating event:', error);
@@ -259,6 +286,11 @@ export const eventsApi = {
         location: row.location || '',
         created_at: row.created_at,
         updated_at: row.updated_at,
+        approval_status: row.approval_status || 'approved',
+        approval_reason: row.approval_reason || null,
+        approved_at: row.approved_at || null,
+        approved_by: row.approved_by || null,
+        submission_source: row.submission_source || 'user',
       }))
     } catch (error) {
       console.warn('Appwrite not accessible, using sample data:', error);
@@ -271,7 +303,7 @@ export const eventsApi = {
 
   async getUpcoming(): Promise<Event[]> {
     try {
-      const { data, error } = await supabase.from('events').select('*').eq('status', 'upcoming')
+      const { data, error } = await supabase.from('events').select('*').eq('status', 'upcoming').eq('approval_status', 'approved')
       if (error) throw error
       return (data || []).map((row: any) => ({
         $id: row.id,
@@ -292,6 +324,11 @@ export const eventsApi = {
         location: row.location || '',
         created_at: row.created_at,
         updated_at: row.updated_at,
+        approval_status: row.approval_status || 'approved',
+        approval_reason: row.approval_reason || null,
+        approved_at: row.approved_at || null,
+        approved_by: row.approved_by || null,
+        submission_source: row.submission_source || 'user',
       }))
     } catch (error) {
       console.warn('Appwrite not accessible, using sample data:', error);
@@ -301,7 +338,7 @@ export const eventsApi = {
 
   async getFeatured(): Promise<Event[]> {
     try {
-      const { data, error } = await supabase.from('events').select('*').eq('featured', true)
+      const { data, error } = await supabase.from('events').select('*').eq('featured', true).eq('approval_status', 'approved')
       if (error) throw error
       return (data || []).map((row: any) => ({
         $id: row.id,
@@ -322,6 +359,11 @@ export const eventsApi = {
         location: row.location || '',
         created_at: row.created_at,
         updated_at: row.updated_at,
+        approval_status: row.approval_status || 'approved',
+        approval_reason: row.approval_reason || null,
+        approved_at: row.approved_at || null,
+        approved_by: row.approved_by || null,
+        submission_source: row.submission_source || 'user',
       }))
     } catch (error) {
       console.warn('Appwrite not accessible, using sample data:', error);
@@ -331,7 +373,7 @@ export const eventsApi = {
 
   async getByCategory(category: string): Promise<Event[]> {
     try {
-      const { data, error } = await supabase.from('events').select('*').eq('category', category)
+      const { data, error } = await supabase.from('events').select('*').eq('category', category).eq('approval_status', 'approved')
       if (error) throw error
       return (data || []).map((row: any) => ({
         $id: row.id,
@@ -352,10 +394,72 @@ export const eventsApi = {
         location: row.location || '',
         created_at: row.created_at,
         updated_at: row.updated_at,
+        approval_status: row.approval_status || 'approved',
+        approval_reason: row.approval_reason || null,
+        approved_at: row.approved_at || null,
+        approved_by: row.approved_by || null,
       }))
     } catch (error) {
       console.warn('Appwrite not accessible, using sample data:', error);
       return sampleEvents.filter(event => event.category === category);
     }
+  },
+
+  async getAllPublic(): Promise<Event[]> {
+    const { data, error } = await supabase
+      .from('events')
+      .select('*')
+      .eq('approval_status', 'approved')
+      .order('created_at', { ascending: false })
+    if (error) throw error
+    return (data || []).map((row: any) => ({
+      $id: row.id,
+      name: row.name || '',
+      description: row.description || '',
+      date: row.date || '',
+      time: row.time || '',
+      venue: row.venue || '',
+      category: row.category || '',
+      price: Number(row.price || 0),
+      ticket_count: Number(row.ticket_count || 0),
+      available_tickets: Number(row.available_tickets || 0),
+      status: row.status || 'upcoming',
+      image_url: row.image_url || '',
+      created_by: row.created_by || '',
+      tags: row.tags || [],
+      featured: !!row.featured,
+      location: row.location || '',
+      created_at: row.created_at || '',
+      updated_at: row.updated_at || '',
+      approval_status: row.approval_status || 'approved',
+      approval_reason: row.approval_reason || null,
+      approved_at: row.approved_at || null,
+      approved_by: row.approved_by || null,
+      submission_source: row.submission_source || 'user',
+    }))
+  },
+
+  async approve(id: string, approverId: string, reason?: string): Promise<boolean> {
+    const { error } = await supabase
+      .from('events')
+      .update({ approval_status: 'approved', approved_by: approverId, approved_at: new Date().toISOString(), approval_reason: reason || null })
+      .eq('id', id)
+    if (error) {
+      console.error('Error approving event:', error)
+      return false
+    }
+    return true
+  },
+
+  async reject(id: string, approverId: string, reason: string): Promise<boolean> {
+    const { error } = await supabase
+      .from('events')
+      .update({ approval_status: 'rejected', approved_by: approverId, approved_at: new Date().toISOString(), approval_reason: reason })
+      .eq('id', id)
+    if (error) {
+      console.error('Error rejecting event:', error)
+      return false
+    }
+    return true
   }
 }; 

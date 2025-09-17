@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useAuth } from '@/contexts/AuthContext'
 import { Eye, EyeOff, Loader2, CheckCircle } from 'lucide-react'
+import { toast } from '@/hooks/use-toast'
 
 function RegisterContent() {
   const router = useRouter()
@@ -69,12 +70,13 @@ function RegisterContent() {
     }
 
     const result = await register(formData.name, formData.email, formData.password)
-    
+
     if (result.success) {
-      setSuccess('Registration successful! Redirecting...')
-      setTimeout(() => {
-        router.push(redirectUrl)
-      }, 2000)
+      toast({
+        title: 'Verify your email',
+        description: `We sent a verification link to ${formData.email}. Please verify to log in.`,
+      })
+      router.push('/auth/login')
     } else {
       setError(result.message)
     }

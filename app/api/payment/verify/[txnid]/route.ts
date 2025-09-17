@@ -108,6 +108,15 @@ export async function POST(
           ticket_type: String(product?.ticketType || 'General'),
         }
 
+        // Atomically decrement inventory before inserting booking
+        const decrementOk = await sb.rpc('decrement_tickets', { eid: bookingRecord.event_id, qty: product.quantity || 1 })
+        if (decrementOk?.error) {
+          throw new Error('Inventory update failed')
+        }
+        if (decrementOk === false) {
+          return NextResponse.json({ ok: false, reason: 'sold_out' }, { status: 409 })
+        }
+
         // Insert or update the booking once. Using upsert still, but email will only send on first insert.
         const { error } = await sb.from('bookings').upsert({
           id: responseData.txnid,

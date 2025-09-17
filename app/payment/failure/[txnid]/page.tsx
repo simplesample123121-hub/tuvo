@@ -68,6 +68,20 @@ export default function PaymentFailurePage() {
         })
 
         if (!verificationResponse.ok) {
+          if (verificationResponse.status === 409) {
+            // Sold out: show friendly message and guide back to booking
+            const data = await verificationResponse.json().catch(() => ({} as any))
+            setPaymentData({
+              txnid,
+              amount: urlParamsObj.amount || '0',
+              status: 'failed',
+              error_message: 'Sold out for selected quantity. Please reduce the number of tickets and try again.',
+              productinfo: urlParamsObj.productinfo || ''
+            } as any)
+            setLoading(false)
+            // Keep storedData so user can retry with same details from booking page
+            return
+          }
           throw new Error('Payment verification failed')
         }
 

@@ -220,9 +220,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const forgotPassword = async (_email: string): Promise<{ success: boolean; message: string }> => {
+  const forgotPassword = async (email: string): Promise<{ success: boolean; message: string }> => {
     try {
-      return { success: true, message: 'Password reset not implemented' };
+      const redirectTo = typeof window !== 'undefined' 
+        ? `${window.location.origin}/auth/update-password`
+        : `${process.env.NEXT_PUBLIC_SITE_URL || ''}/auth/update-password`
+      const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo })
+      if (error) throw error
+      return { success: true, message: 'Password reset email sent. Check your inbox.' };
     } catch (error: any) {
       console.error('Forgot password error:', error);
       return { 
@@ -232,9 +237,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const resetPassword = async (_userId: string, _secret: string, _password: string): Promise<{ success: boolean; message: string }> => {
+  const resetPassword = async (_userId: string, _secret: string, password: string): Promise<{ success: boolean; message: string }> => {
     try {
-      return { success: true, message: 'Password reset not implemented' };
+      const { error } = await supabase.auth.updateUser({ password })
+      if (error) throw error
+      await refreshUser()
+      return { success: true, message: 'Password updated successfully' };
     } catch (error: any) {
       console.error('Reset password error:', error);
       return { 

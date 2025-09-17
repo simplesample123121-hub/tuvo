@@ -1,10 +1,7 @@
 {
-  "/api/payu/success/[txnid]/route": "app/api/payu/success/[txnid]/route.js",
-  "/api/payment/verify/[txnid]/route": "app/api/payment/verify/[txnid]/route.js",
-  "/auth/login/page": "app/auth/login/page.js",
   "/dashboard/page": "app/dashboard/page.js",
-  "/page": "app/page.js",
+  "/events/[id]/page": "app/events/[id]/page.js",
+  "/events/[id]/book/page": "app/events/[id]/book/page.js",
   "/events/page": "app/events/page.js",
-  "/payment/success/[txnid]/page": "app/payment/success/[txnid]/page.js",
-  "/admin/page": "app/admin/page.js"
+  "/page": "app/page.js"
 }

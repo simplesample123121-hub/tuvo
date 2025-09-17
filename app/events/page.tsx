@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Search, Filter, Grid, List } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { eventsApi, Event } from '@/lib/api/events'
+import { LocationPicker } from '@/components/location-picker'
 
 export default function EventsPage() {
   return (
@@ -25,13 +26,15 @@ function EventsContent() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [sortBy, setSortBy] = useState<string>('date')
+  const [locationQuery, setLocationQuery] = useState('')
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [pickerOpen, setPickerOpen] = useState(false)
 
   useEffect(() => {
     const loadEvents = async () => {
       try {
         setLoading(true)
-        const data = await eventsApi.getAll()
+        const data = await eventsApi.getAllPublic()
         // Filter out any events that don't have a valid $id
         const validEvents = data.filter(event => event && event.$id)
         setEvents(validEvents)
@@ -45,11 +48,15 @@ function EventsContent() {
     loadEvents()
   }, [])
 
-  // Apply category from URL query (e.g., /events?category=music)
+  // Apply category/location from URL query (e.g., /events?category=music&location=mumbai)
   useEffect(() => {
     const categoryFromUrl = searchParams?.get('category')
     if (categoryFromUrl) {
       setSelectedCategory(categoryFromUrl)
+    }
+    const locationFromUrl = searchParams?.get('location')
+    if (locationFromUrl) {
+      setLocationQuery(locationFromUrl)
     }
   }, [searchParams])
 
@@ -62,14 +69,28 @@ function EventsContent() {
       const name = event.name || ''
       const description = event.description || ''
       const venue = event.venue || ''
+      const locationText = (() => {
+        const loc = event.location || ''
+        try {
+          const parsed = JSON.parse(loc)
+          const city = parsed?.city || ''
+          const address = parsed?.address || ''
+          return `${city} ${address}`.trim()
+        } catch {
+          return loc
+        }
+      })()
       const matchesSearch = name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                            description.toLowerCase().includes(searchQuery.toLowerCase()) ||
                            venue.toLowerCase().includes(searchQuery.toLowerCase())
+      const matchesLocation = !locationQuery.trim() ||
+        venue.toLowerCase().includes(locationQuery.toLowerCase()) ||
+        locationText.toLowerCase().includes(locationQuery.toLowerCase())
       
       const matchesCategory = selectedCategory === 'all' 
         || normalize(event.category) === normalize(selectedCategory)
       
-      return matchesSearch && matchesCategory
+      return matchesSearch && matchesCategory && matchesLocation
     })
 
     // Sort events
@@ -92,6 +113,19 @@ function EventsContent() {
   }, [events, searchQuery, selectedCategory, sortBy])
 
   const categories = EVENT_CATEGORIES.map(c => c.name)
+  const popularLocations = useMemo(() => {
+    const set = new Set<string>()
+    for (const ev of events) {
+      const venue = (ev.venue || '').trim()
+      if (venue) set.add(venue)
+      try {
+        const parsed = JSON.parse(ev.location || '{}')
+        if (parsed?.city) set.add(String(parsed.city))
+      } catch {}
+      if (set.size >= 12) break
+    }
+    return Array.from(set).slice(0, 12)
+  }, [events])
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -115,6 +149,16 @@ function EventsContent() {
               className="pl-10"
             />
           </div>
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Input
+              placeholder="Search by city or location..."
+              value={locationQuery}
+              onChange={(e) => setLocationQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <Button variant="outline" onClick={() => setPickerOpen(true)}>Choose City</Button>
           
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
@@ -167,6 +211,17 @@ function EventsContent() {
           </div>
         </div>
 
+        {/* Quick locations */}
+        {popularLocations.length > 0 && (
+          <div className="mb-4 flex flex-wrap gap-2">
+            {popularLocations.map(loc => (
+              <Button key={loc} size="sm" variant="outline" onClick={() => setLocationQuery(loc)}>
+                {loc}
+              </Button>
+            ))}
+          </div>
+        )}
+
         {/* Results Count */}
         <div className="mb-6">
           <p className="text-muted-foreground dark:text-gray-400">
@@ -204,6 +259,21 @@ function EventsContent() {
           </div>
         )}
       </div>
+      <LocationPicker
+        open={pickerOpen}
+        onOpenChange={setPickerOpen}
+        allLocations={events.map(ev => {
+          const list: string[] = []
+          if (ev.venue) list.push(ev.venue)
+          try {
+            const parsed = JSON.parse(ev.location || '{}')
+            if (parsed?.city) list.push(String(parsed.city))
+            if (parsed?.address) list.push(String(parsed.address))
+          } catch {}
+          return list.join('|')
+        }).flatMap(s => s.split('|').filter(Boolean))}
+        onSelect={(loc) => setLocationQuery(loc)}
+      />
     </div>
   )
 } 

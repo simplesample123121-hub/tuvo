@@ -103,7 +103,9 @@ export default function AdminEventsPage() {
         created_by: 'admin',
         status: formData.status as 'upcoming' | 'ongoing' | 'completed',
         location: formData.location,
-        image_url: imageUrl
+        image_url: imageUrl,
+        approval_status: 'approved',
+        submission_source: 'admin'
       })
 
       if (newEvent) {

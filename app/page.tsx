@@ -1,6 +1,5 @@
 "use client"
 import { Suspense, useState } from 'react'
-import { Header } from '@/components/header'
 import { Hero } from '@/components/hero'
 import { Categories } from '@/components/categories'
 import { Features } from '@/components/features'
@@ -55,7 +54,6 @@ export default function HomePage() {
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-background">
-        <Header />
         <main>
           <Hero />
           {/* <div className="container px-4 mx-auto my-4">

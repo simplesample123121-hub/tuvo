@@ -78,6 +78,12 @@ export default function PaymentSuccessPage() {
         })
 
         if (!verificationResponse.ok) {
+          if (verificationResponse.status === 409) {
+            // Sold out for selected quantity
+            const message = 'Sold out for selected quantity. Please adjust the number of tickets.'
+            router.replace(`/payment/failure/${txnid}?error_message=${encodeURIComponent(message)}&sold_out=1`)
+            return
+          }
           throw new Error('Payment verification failed')
         }
 

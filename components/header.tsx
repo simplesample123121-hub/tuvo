@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { Menu, X, User, Settings, LogOut, Calendar } from 'lucide-react'
+import { useAuth } from '@/contexts/AuthContext'
+import { toast } from '@/hooks/use-toast'
 
 const navigation = [
   { name: 'Home', href: '/' },
@@ -32,10 +34,9 @@ export function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const pathname = usePathname()
+  const router = useRouter()
+  const { isAuthenticated, user, logout } = useAuth()
   
-  // Mock authentication state - replace with your actual auth logic
-  const isAuthenticated = false
-
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20)
@@ -114,9 +115,9 @@ export function Header() {
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                       <Avatar className="h-8 w-8">
-                        <AvatarImage src="/avatars/user.png" alt="User" />
+                        <AvatarImage src="/avatars/user.png" alt={user?.name || 'User'} />
                         <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                          U
+                          {(user?.name || user?.email || 'U').charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                     </Button>
@@ -124,23 +125,45 @@ export function Header() {
                   <DropdownMenuContent className="w-56" align="end" forceMount>
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">User Name</p>
+                        <p className="text-sm font-medium leading-none">{user?.name || 'User'}</p>
                         <p className="text-xs leading-none text-muted-foreground">
-                          user@example.com
+                          {user?.email}
                         </p>
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem>
-                      <User className="mr-2 h-4 w-4" />
-                      <span>Profile</span>
+                    <DropdownMenuItem asChild>
+                      <Link href="/organizer" className="w-full flex items-center">
+                        <User className="mr-2 h-4 w-4" />
+                        <span>My Events</span>
+                      </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Settings className="mr-2 h-4 w-4" />
-                      <span>Settings</span>
+                    <DropdownMenuItem asChild>
+                      <Link href="/events/create" className="w-full flex items-center">
+                        <Calendar className="mr-2 h-4 w-4" />
+                        <span>Create Event</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/profile" className="w-full flex items-center">
+                        <User className="mr-2 h-4 w-4" />
+                        <span>Profile</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/dashboard" className="w-full flex items-center">
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Dashboard</span>
+                      </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={async () => {
+                        await logout()
+                        toast({ title: 'Signed out' })
+                        router.push('/')
+                      }}
+                    >
                       <LogOut className="mr-2 h-4 w-4" />
                       <span>Log out</span>
                     </DropdownMenuItem>
@@ -209,6 +232,26 @@ export function Header() {
                       Sign Up
                     </Link>
                   </Button>
+                </div>
+              )}
+
+              {/* Quick links for authenticated users */}
+              {isAuthenticated && (
+                <div className="pt-4 border-t space-y-2">
+                  <Link
+                    href="/organizer"
+                    className="block px-3 py-2 text-sm font-medium rounded-md text-muted-foreground hover:text-foreground hover:bg-muted"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    My Events
+                  </Link>
+                  <Link
+                    href="/events/create"
+                    className="block px-3 py-2 text-sm font-medium rounded-md text-muted-foreground hover:text-foreground hover:bg-muted"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Create Event
+                  </Link>
                 </div>
               )}
             </div>

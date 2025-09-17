@@ -30,6 +30,7 @@ export default function BookingPage({ params }: BookingPageProps) {
   const [loading, setLoading] = useState(true)
   const [currentStep, setCurrentStep] = useState<BookingStep>('attendee')
   const [bookingId, setBookingId] = useState('')
+  const [quantity, setQuantity] = useState(1)
   const [bookingData, setBookingData] = useState({
     attendee: {
       name: '',
@@ -121,6 +122,10 @@ export default function BookingPage({ params }: BookingPageProps) {
 
   const handleAttendeeSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    if ((event?.available_tickets || 0) < quantity) {
+      alert('Not enough tickets available.')
+      return
+    }
     setCurrentStep('payment')
   }
 
@@ -316,8 +321,8 @@ export default function BookingPage({ params }: BookingPageProps) {
                         attendeeAge: parseInt(bookingData.attendee.age),
                         attendeeAddress: bookingData.attendee.address,
                         ticketType: 'Regular',
-                        quantity: 1,
-                        amount: event.price,
+                        quantity,
+                        amount: (event.price || 0) * quantity,
                         bookingId: bookingId
                       }}
                       onPaymentComplete={(success, transactionId) => {
@@ -399,9 +404,28 @@ export default function BookingPage({ params }: BookingPageProps) {
                   </div>
                 </div>
                 <div className="border-t pt-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-lg font-semibold">Total Amount</span>
-                    <span className="text-2xl font-bold text-primary">{formatPrice(event.price || 0, 'INR')}</span>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Quantity</span>
+                      <div className="flex items-center gap-2">
+                        <Button type="button" variant="outline" size="sm" onClick={() => setQuantity(q => Math.max(1, q - 1))}>-</Button>
+                        <Input
+                          value={quantity}
+                          onChange={(e) => {
+                            const v = parseInt(e.target.value || '1')
+                            setQuantity(isNaN(v) || v < 1 ? 1 : v)
+                          }}
+                          type="number"
+                          min={1}
+                          className="w-16 text-center"
+                        />
+                        <Button type="button" variant="outline" size="sm" onClick={() => setQuantity(q => q + 1)}>+</Button>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-lg font-semibold">Total Amount</span>
+                      <span className="text-2xl font-bold text-primary">{formatPrice((event.price || 0) * quantity, 'INR')}</span>
+                    </div>
                   </div>
                 </div>
               </CardContent>

@@ -6,20 +6,45 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
-    "/dashboard/page": [
+    "/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/dashboard/page.js"
+      "static/chunks/app/page.js"
+    ],
+    "/events/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/events/page.js"
     ],
     "/auth/login/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/auth/login/page.js"
     ],
-    "/page": [
+    "/dashboard/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/page.js"
+      "static/chunks/app/dashboard/page.js"
+    ],
+    "/profile/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/profile/page.js"
+    ],
+    "/about/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/about/page.js"
+    ],
+    "/contact/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/contact/page.js"
+    ],
+    "/auth/register/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/auth/register/page.js"
     ],
     "/admin/layout": [
       "static/chunks/webpack.js",
@@ -36,45 +61,55 @@
       "static/chunks/main-app.js",
       "static/chunks/app/api/status/route.js"
     ],
+    "/events/create/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/events/create/page.js"
+    ],
+    "/organizer/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/organizer/page.js"
+    ],
     "/admin/events/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/admin/events/page.js"
     ],
-    "/admin/bookings/page": [
+    "/admin/events/requests/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/admin/bookings/page.js"
+      "static/chunks/app/admin/events/requests/page.js"
     ],
-    "/admin/users/page": [
+    "/organizer/[id]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/admin/users/page.js"
+      "static/chunks/app/organizer/[id]/page.js"
     ],
-    "/admin/settings/page": [
+    "/auth/forgot-password/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/admin/settings/page.js"
+      "static/chunks/app/auth/forgot-password/page.js"
     ],
-    "/events/page": [
+    "/auth/update-password/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/events/page.js"
+      "static/chunks/app/auth/update-password/page.js"
     ],
-    "/api/payu/success/[txnid]/route": [
+    "/events/[id]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/api/payu/success/[txnid]/route.js"
+      "static/chunks/app/events/[id]/page.js"
     ],
-    "/payment/success/[txnid]/page": [
+    "/events/[id]/book/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/payment/success/[txnid]/page.js"
+      "static/chunks/app/events/[id]/book/page.js"
     ],
-    "/api/payment/verify/[txnid]/route": [
+    "/api/payment/route": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/api/payment/verify/[txnid]/route.js"
+      "static/chunks/app/api/payment/route.js"
     ]
   }
 }
