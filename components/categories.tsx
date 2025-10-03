@@ -175,13 +175,13 @@ export function Categories() {
 
   return (
     <>
-      <section className="py-16 bg-muted/30">
+      <section className="py-16">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl lg:text-5xl font-bold text-foreground mb-6 tracking-tight">
               Explore Event Categories
             </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               Discover events by category and find exactly what you're looking for
             </p>
           </div>
@@ -228,8 +228,8 @@ export function Categories() {
             </div>
           </div>
 
-          <div className="text-center mt-8">
-            <Button variant="outline" size="lg">
+          <div className="text-center mt-12">
+            <Button variant="outline" size="lg" className="bg-white/50 backdrop-blur-sm border-white/20 hover:bg-white/70">
               <Link href="/events" className="flex items-center gap-2">
                 View All Events
                 <MoreHorizontal className="w-4 h-4" />

@@ -13,7 +13,7 @@ import { LocationPicker } from '@/components/location-picker'
 
 export default function EventsPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-gray-50 dark:bg-gray-900"><div className="container px-4 py-12 mx-auto">Loading events...</div></div>}>
+    <Suspense fallback={<div className="min-h-screen" style={{backgroundColor: '#ffffff'}}><div className="container px-4 py-12 mx-auto">Loading events...</div></div>}>
       <EventsContent />
     </Suspense>
   )
@@ -27,6 +27,7 @@ function EventsContent() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [sortBy, setSortBy] = useState<string>('date')
   const [locationQuery, setLocationQuery] = useState('')
+  const [cityQuery, setCityQuery] = useState('')
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [pickerOpen, setPickerOpen] = useState(false)
 
@@ -48,7 +49,7 @@ function EventsContent() {
     loadEvents()
   }, [])
 
-  // Apply category/location from URL query (e.g., /events?category=music&location=mumbai)
+  // Apply category/location/search from URL query (e.g., /events?category=music&location=mumbai&q=tech)
   useEffect(() => {
     const categoryFromUrl = searchParams?.get('category')
     if (categoryFromUrl) {
@@ -57,6 +58,15 @@ function EventsContent() {
     const locationFromUrl = searchParams?.get('location')
     if (locationFromUrl) {
       setLocationQuery(locationFromUrl)
+    }
+    const cityFromUrl = searchParams?.get('city')
+    if (cityFromUrl) {
+      setCityQuery(cityFromUrl)
+      setLocationQuery(cityFromUrl)
+    }
+    const qFromUrl = searchParams?.get('q')
+    if (qFromUrl) {
+      setSearchQuery(qFromUrl)
     }
   }, [searchParams])
 
@@ -83,6 +93,7 @@ function EventsContent() {
       const matchesSearch = name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                            description.toLowerCase().includes(searchQuery.toLowerCase()) ||
                            venue.toLowerCase().includes(searchQuery.toLowerCase())
+      const matchesCity = !cityQuery.trim() || (event.city || '').toLowerCase().includes(cityQuery.toLowerCase())
       const matchesLocation = !locationQuery.trim() ||
         venue.toLowerCase().includes(locationQuery.toLowerCase()) ||
         locationText.toLowerCase().includes(locationQuery.toLowerCase())
@@ -90,7 +101,7 @@ function EventsContent() {
       const matchesCategory = selectedCategory === 'all' 
         || normalize(event.category) === normalize(selectedCategory)
       
-      return matchesSearch && matchesCategory && matchesLocation
+      return matchesSearch && matchesCategory && matchesLocation && matchesCity
     })
 
     // Sort events
@@ -128,8 +139,8 @@ function EventsContent() {
   }, [events])
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="container px-4 py-12 mx-auto">
+    <div className="min-h-screen" style={{backgroundColor: '#ffffff'}}>
+      <div className="container py-12 mx-auto px-4">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold mb-4">All Events</h1>
@@ -262,16 +273,6 @@ function EventsContent() {
       <LocationPicker
         open={pickerOpen}
         onOpenChange={setPickerOpen}
-        allLocations={events.map(ev => {
-          const list: string[] = []
-          if (ev.venue) list.push(ev.venue)
-          try {
-            const parsed = JSON.parse(ev.location || '{}')
-            if (parsed?.city) list.push(String(parsed.city))
-            if (parsed?.address) list.push(String(parsed.address))
-          } catch {}
-          return list.join('|')
-        }).flatMap(s => s.split('|').filter(Boolean))}
         onSelect={(loc) => setLocationQuery(loc)}
       />
     </div>

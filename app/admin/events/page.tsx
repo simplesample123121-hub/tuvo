@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Plus, Edit, Trash2, Search, Filter, Calendar, MapPin, Users, IndianRupee } from 'lucide-react'
 import { EVENT_CATEGORIES } from '@/lib/categories'
+import { POPULAR_CITIES } from '@/lib/cities'
 import { formatPrice } from '@/lib/utils'
 import { eventsApi, Event } from '@/lib/api/events'
 import Image from 'next/image'
@@ -94,6 +95,7 @@ export default function AdminEventsPage() {
         }
       }
 
+      const locationObj = (() => { try { return JSON.parse(formData.location || '{}') } catch { return {} as any } })()
       const newEvent = await eventsApi.create({
         ...formData,
         price: parseFloat(formData.price),
@@ -103,6 +105,7 @@ export default function AdminEventsPage() {
         created_by: 'admin',
         status: formData.status as 'upcoming' | 'ongoing' | 'completed',
         location: formData.location,
+        city: (locationObj?.city || '').toString() || undefined,
         image_url: imageUrl,
         approval_status: 'approved',
         submission_source: 'admin'
@@ -339,6 +342,46 @@ export default function AdminEventsPage() {
                     onChange={(e) => setFormData({ ...formData, venue: e.target.value })}
                   />
                 </div>
+              <div>
+                <Label htmlFor="city">City *</Label>
+                {(() => {
+                  const loc = (() => { try { return JSON.parse(formData.location || '{}') } catch { return {} as any } })()
+                  const currentCity = (loc?.city || '') as string
+                  const isOther = currentCity && !POPULAR_CITIES.includes(currentCity)
+                  return (
+                    <div className="space-y-2">
+                      <Select
+                        value={isOther ? 'other' : (currentCity || '')}
+                        onValueChange={(val) => {
+                          const next = { ...(loc || {}), city: val === 'other' ? '' : val }
+                          setFormData({ ...formData, location: JSON.stringify(next) })
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select city" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Array.from(new Set(POPULAR_CITIES)).map(c => (
+                            <SelectItem key={c} value={c}>{c}</SelectItem>
+                          ))}
+                          <SelectItem value="other">Other…</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {(isOther || !currentCity) && (
+                        <Input
+                          placeholder="Enter city name"
+                          value={currentCity || ''}
+                          onChange={(e) => {
+                            const next = { ...(loc || {}), city: e.target.value }
+                            setFormData({ ...formData, location: JSON.stringify(next) })
+                          }}
+                          required
+                        />
+                      )}
+                    </div>
+                  )
+                })()}
+              </div>
                 <div>
                   <Label htmlFor="price">Price *</Label>
                   <Input
@@ -644,6 +687,46 @@ export default function AdminEventsPage() {
                   value={formData.venue}
                   onChange={(e) => setFormData({ ...formData, venue: e.target.value })}
                 />
+              </div>
+              <div>
+                <Label htmlFor="edit-city">City *</Label>
+                {(() => {
+                  const loc = (() => { try { return JSON.parse(formData.location || '{}') } catch { return {} as any } })()
+                  const currentCity = (loc?.city || '') as string
+                  const isOther = currentCity && !POPULAR_CITIES.includes(currentCity)
+                  return (
+                    <div className="space-y-2">
+                      <Select
+                        value={isOther ? 'other' : (currentCity || '')}
+                        onValueChange={(val) => {
+                          const next = { ...(loc || {}), city: val === 'other' ? '' : val }
+                          setFormData({ ...formData, location: JSON.stringify(next) })
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select city" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Array.from(new Set(POPULAR_CITIES)).map(c => (
+                            <SelectItem key={c} value={c}>{c}</SelectItem>
+                          ))}
+                          <SelectItem value="other">Other…</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {(isOther || !currentCity) && (
+                        <Input
+                          placeholder="Enter city name"
+                          value={currentCity || ''}
+                          onChange={(e) => {
+                            const next = { ...(loc || {}), city: e.target.value }
+                            setFormData({ ...formData, location: JSON.stringify(next) })
+                          }}
+                          required
+                        />
+                      )}
+                    </div>
+                  )
+                })()}
               </div>
               <div>
                 <Label htmlFor="edit-price">Price *</Label>

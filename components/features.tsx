@@ -36,17 +36,17 @@ const features = [
 
 export function Features() {
   return (
-    <section className="py-24 bg-background">
+    <section className="py-20">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-muted rounded-md text-sm text-muted-foreground mb-6">
+        <div className="text-center mb-20">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border bg-white/50 backdrop-blur-sm text-sm text-muted-foreground mb-8">
             <Star className="w-4 h-4" />
             <span>Why Choose Tuvo?</span>
           </div>
-          <h2 className="text-4xl font-bold text-foreground mb-6">
+          <h2 className="text-4xl lg:text-5xl font-bold text-foreground mb-6 tracking-tight">
             Features That Set Us Apart
           </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
             We make event booking simple, secure, and enjoyable. 
             Here's what sets us apart from the competition.
           </p>

@@ -16,6 +16,7 @@ export interface Event {
   created_by: string;
   tags: string[];
   featured: boolean;
+  city?: string;
   location: string; // Changed from object to string to match Appwrite schema
   created_at?: string; // Made optional since Appwrite handles this
   updated_at?: string; // Made optional since Appwrite handles this
@@ -107,6 +108,7 @@ export const eventsApi = {
         created_by: row.created_by || '',
         tags: row.tags || [],
         featured: !!row.featured,
+        city: row.city || undefined,
         location: row.location || '',
         created_at: row.created_at || '',
         updated_at: row.updated_at || '',
@@ -147,6 +149,7 @@ export const eventsApi = {
         created_by: data.created_by || '',
         tags: data.tags || [],
         featured: !!data.featured,
+        city: data.city || undefined,
         location: data.location || '',
         created_at: data.created_at || '',
         updated_at: data.updated_at || '',
@@ -179,6 +182,7 @@ export const eventsApi = {
         created_by: eventData.created_by,
         tags: eventData.tags,
         featured: eventData.featured,
+        city: eventData.city,
         location: eventData.location,
         approval_status: eventData.approval_status || 'pending',
         submission_source: eventData.submission_source || 'user',
@@ -193,6 +197,7 @@ export const eventsApi = {
       return {
         $id: data.id,
         ...eventData,
+        city: data.city || eventData.city,
         created_at: data.created_at,
         updated_at: data.updated_at,
         approval_status: data.approval_status || eventData.approval_status || 'pending',
@@ -233,6 +238,7 @@ export const eventsApi = {
         created_by: data.created_by,
         tags: data.tags,
         featured: data.featured,
+        city: data.city,
         location: data.location,
         created_at: data.created_at,
         updated_at: data.updated_at,
@@ -283,6 +289,7 @@ export const eventsApi = {
         created_by: row.created_by,
         tags: row.tags || [],
         featured: !!row.featured,
+        city: row.city || undefined,
         location: row.location || '',
         created_at: row.created_at,
         updated_at: row.updated_at,
@@ -321,6 +328,7 @@ export const eventsApi = {
         created_by: row.created_by,
         tags: row.tags || [],
         featured: !!row.featured,
+        city: row.city || undefined,
         location: row.location || '',
         created_at: row.created_at,
         updated_at: row.updated_at,
@@ -356,6 +364,7 @@ export const eventsApi = {
         created_by: row.created_by,
         tags: row.tags || [],
         featured: !!row.featured,
+        city: row.city || undefined,
         location: row.location || '',
         created_at: row.created_at,
         updated_at: row.updated_at,
@@ -428,6 +437,7 @@ export const eventsApi = {
       created_by: row.created_by || '',
       tags: row.tags || [],
       featured: !!row.featured,
+      city: row.city || undefined,
       location: row.location || '',
       created_at: row.created_at || '',
       updated_at: row.updated_at || '',

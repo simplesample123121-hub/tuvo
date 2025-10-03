@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Hide scrollbars for elements that opt-in */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -63,13 +67,23 @@
   * {
     @apply border-border;
   }
+  html {
+    /* Ensure the background covers the entire viewport */
+    background: #f5f6f8;
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+  
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
     /* Mobile-specific optimizations */
     -webkit-text-size-adjust: 100%;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    /* Inherit the background from html */
+    background: inherit;
+    min-height: 100vh;
   }
   
   /* Prevent horizontal scroll on mobile */

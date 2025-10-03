@@ -21,76 +21,71 @@ export default function EventCard({ event, showActions = true }: EventCardProps)
   }
 
   return (
-    <Card className="relative overflow-hidden hover:shadow-lg transition-shadow">
-      {event.image_url && (
-        <div className="relative h-48 overflow-hidden">
+    <Card className="relative overflow-hidden rounded-xl border bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow">
+      <div className="relative aspect-[16/9] w-full overflow-hidden">
+        {event.image_url ? (
           <Image
             src={event.image_url}
             alt={event.name}
             fill
             className="object-cover"
           />
-          <div className="absolute top-2 left-2 flex gap-1">
-            <Badge variant="secondary" className="text-xs">
-              {event.category} #{parseInt(event.$id?.slice(-1)) || 1}
+        ) : (
+          <div className="absolute inset-0 bg-muted" />
+        )}
+        <div className="absolute top-3 left-3 flex gap-2">
+          <Badge variant="secondary" className="text-[10px] tracking-wide">
+            {event.category}
+          </Badge>
+          {event.featured && (
+            <Badge variant="default" className="text-[10px] bg-yellow-500 text-white">
+              Featured
             </Badge>
-            {event.featured && (
-              <Badge variant="default" className="text-xs bg-yellow-500 text-white">
-                Featured
-              </Badge>
-            )}
-          </div>
+          )}
         </div>
-      )}
-      <CardContent className="p-4">
-        <CardTitle className="text-lg mb-2">{event.name}</CardTitle>
+      </div>
+      <CardContent className="p-5">
+        <CardTitle className="text-base font-semibold mb-1 line-clamp-1">{event.name}</CardTitle>
         <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
           {event.description}
         </p>
-        
-        <div className="space-y-2 mb-4">
-          <div className="flex items-center gap-2 text-sm">
+        <div className="grid grid-cols-2 gap-3 mb-5">
+          <div className="flex items-center gap-2 text-xs sm:text-sm">
             <Calendar className="w-4 h-4" />
             <span>{new Date(event.date).toLocaleDateString()}</span>
           </div>
-          <div className="flex items-center gap-2 text-sm">
+          <div className="flex items-center gap-2 text-xs sm:text-sm">
             <Clock className="w-4 h-4" />
             <span>{event.time}</span>
           </div>
-          <div className="flex items-center gap-2 text-sm">
+          <div className="flex items-center gap-2 text-xs sm:text-sm col-span-2">
             <MapPin className="w-4 h-4" />
-            <span>{event.venue}</span>
+            <span className="truncate">{event.venue}</span>
           </div>
-          <div className="flex items-center gap-2 text-sm">
+          <div className="flex items-center gap-2 text-xs sm:text-sm">
             <Users className="w-4 h-4" />
-            <span>{event.available_tickets} tickets left</span>
+            <span>{event.available_tickets} left</span>
           </div>
-          <div className="flex items-center gap-2 text-sm">
+          <div className="flex items-center gap-2 text-xs sm:text-sm">
             <IndianRupee className="w-4 h-4" />
             <span>{formatPrice(event.price || 0, 'INR')}</span>
           </div>
         </div>
-
         <div className="flex items-center justify-between">
           <div className="flex gap-2">
-            <Badge variant={event.status === 'upcoming' ? 'default' : event.status === 'ongoing' ? 'secondary' : 'outline'}>
+            <Badge variant={event.status === 'upcoming' ? 'default' : event.status === 'ongoing' ? 'secondary' : 'outline'} className="capitalize">
               {event.status}
             </Badge>
             {event.featured && (
               <Badge variant="secondary">Featured</Badge>
             )}
           </div>
-          
           {showActions && (
-            <div className="flex gap-2">
-              <AuthCheck>
-                <Button asChild size="sm">
-                  <Link href={`/events/${event.$id || ''}`}>
-                    View Details
-                  </Link>
-                </Button>
-              </AuthCheck>
-            </div>
+            <AuthCheck>
+              <Button asChild size="sm" className="rounded-full px-4">
+                <Link href={`/events/${event.$id || ''}`}>View</Link>
+              </Button>
+            </AuthCheck>
           )}
         </div>
       </CardContent>

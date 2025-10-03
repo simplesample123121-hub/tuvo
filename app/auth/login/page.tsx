@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useAuth } from '@/contexts/AuthContext'
-import { Eye, EyeOff, Loader2 } from 'lucide-react'
+import { Eye, EyeOff, Loader2, Facebook, Mail, ArrowRight, X, Circle } from 'lucide-react'
 
 function LoginContent() {
   const router = useRouter()
@@ -76,29 +76,26 @@ function LoginContent() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <div className="mx-auto h-12 w-12 rounded-lg bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-lg">E</span>
+    <div className="min-h-screen flex items-center justify-center bg-background py-0">
+      <div className="w-full max-w-none rounded-none overflow-hidden bg-card h-[100svh]">
+        <div className="grid grid-cols-1 md:grid-cols-2 h-full">
+          {/* Left image */}
+          <div className="relative hidden md:block h-full">
+            <img src="https://images.unsplash.com/photo-1517263904808-5dc91e3e7044?q=80&w=1200&auto=format&fit=crop" alt="Welcome" className="absolute inset-0 h-full w-full object-cover" />
           </div>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900 dark:text-white">
-            Sign in to your account
-          </h2>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            Welcome back! Please enter your details.
-          </p>
-        </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Login</CardTitle>
-            <CardDescription>
-              Enter your email and password to access your account
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Right panel */}
+          <div className="p-6 sm:p-10">
+            <div className="mb-2">
+              <h1 className="text-2xl sm:text-3xl font-bold">Sign In - A new world awaits</h1>
+              <p className="text-sm text-muted-foreground mt-2">Join a community of event explorers</p>
+            </div>
+
+            
+
+            <Card className="border-0 shadow-none">
+              <CardContent className="p-0">
+                <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
                 <Alert variant="destructive">
                   <AlertDescription>{error}</AlertDescription>
@@ -147,14 +144,14 @@ function LoginContent() {
               </div>
 
               <div className="flex items-center justify-between">
-                <div className="flex items-center">
+              <div className="flex items-center">
                   <input
                     id="remember-me"
                     name="remember-me"
                     type="checkbox"
-                    className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+                  className="h-3 w-3 scale-50 origin-left text-primary focus:ring-primary border-gray-300 rounded"
                   />
-                  <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900 dark:text-gray-300">
+                <label htmlFor="remember-me" className="ml-1 block text-sm text-gray-900 dark:text-gray-300">
                     Remember me
                   </label>
                 </div>
@@ -169,19 +166,8 @@ function LoginContent() {
                 </div>
               </div>
 
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={loading}
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Signing in...
-                  </>
-                ) : (
-                  'Sign in'
-                )}
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Signing in...</>) : 'Continue'}
               </Button>
 
               <div className="text-center">
@@ -194,18 +180,20 @@ function LoginContent() {
                     Sign up
                   </Link>
                 </p>
-                <div className="mt-4 space-y-2">
+                {/* <div className="mt-4 space-y-2">
                   {magicSent && (
                     <p className="text-xs text-green-600">{magicSent}</p>
                   )}
                   <Button type="button" variant="outline" className="w-full" onClick={handleSendMagicLink} disabled={magicSending || !formData.email}>
                     {magicSending ? 'Sending magic link...' : 'Send magic link to email'}
                   </Button>
-                </div>
+                </div> */}
               </div>
             </form>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
     </div>
   )

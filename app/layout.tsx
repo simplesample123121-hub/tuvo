@@ -6,6 +6,7 @@ import { Toaster } from '@/components/ui/toaster'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { BackFab } from '@/components/BackFab'
 import { Header } from '@/components/header'
+import { ContentWrapper } from '@/components/content-wrapper'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -45,7 +46,9 @@ export default function RootLayout({
         >
           <AuthProvider>
             <Header />
-            {children}
+            <ContentWrapper>
+              {children}
+            </ContentWrapper>
             <BackFab />
             <Toaster />
           </AuthProvider>

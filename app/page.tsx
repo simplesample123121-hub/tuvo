@@ -1,12 +1,13 @@
 "use client"
 import { Suspense, useState } from 'react'
 import { Hero } from '@/components/hero'
-import { Categories } from '@/components/categories'
 import { Features } from '@/components/features'
 import { Footer } from '@/components/footer'
 import { ErrorBoundary } from '@/components/error-boundary'
 import { MobileDebug } from '@/components/mobile-debug'
 import { Button } from '@/components/ui/button'
+import { HomeEventTabs } from '@/components/home-event-tabs'
+import { FeaturedEvents } from '@/components/featured-events'
 
 function LoadingFallback() {
   return (
@@ -56,34 +57,13 @@ export default function HomePage() {
       <div className="min-h-screen bg-background">
         <main>
           <Hero />
-          {/* <div className="container px-4 mx-auto my-4">
-            <div className="flex flex-col sm:flex-row gap-3 items-start">
-              <Button onClick={handleTestResendMail} disabled={sending}>
-                {sending ? 'Sending test…' : 'Test Resend Mail'}
-              </Button>
-              {result && (
-                <div className={`text-sm px-3 py-2 rounded border ${result.ok ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-700'}`}>
-                  {result.ok ? (
-                    <>
-                      Sent via {result.provider || 'unknown'} (ID: {result.messageId || 'n/a'})
-                      {result.previewUrl && (
-                        <>
-                          {' • '}
-                          <a className="underline" href={result.previewUrl} target="_blank" rel="noreferrer">Preview</a>
-                        </>
-                      )}
-                    </>
-                  ) : (
-                    <>Failed: {result.error || 'Unknown error'}</>
-                  )}
-                </div>
-              )}
-            </div>
-          </div> */}
-          <Suspense fallback={<LoadingFallback />}>
-            <Categories />
+          <Suspense fallback={<div className="py-16"><div className="text-center text-muted-foreground">Loading featured…</div></div>}>
+            <FeaturedEvents />
           </Suspense>
-          <Suspense fallback={<div className="py-24 bg-background"><div className="container px-4 mx-auto text-center">Loading features...</div></div>}>
+          <Suspense fallback={<div className="py-16"><div className="text-center text-muted-foreground">Loading events…</div></div>}>
+            <HomeEventTabs />
+          </Suspense>
+          <Suspense fallback={<div className="py-24"><div className="container mx-auto text-center">Loading features...</div></div>}>
             <Features />
           </Suspense>
         </main>

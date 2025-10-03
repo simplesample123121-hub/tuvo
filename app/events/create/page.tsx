@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { POPULAR_CITIES } from '@/lib/cities'
 import { EVENT_CATEGORIES } from '@/lib/categories'
 import { eventsApi } from '@/lib/api/events'
 import { toast } from '@/hooks/use-toast'
@@ -42,6 +43,7 @@ export default function CreateEventRequestPage() {
     if (!user?.$id) return
     setSubmitting(true)
     try {
+      const locObj = (() => { try { return JSON.parse(form.location || '{}') } catch { return {} as any } })()
       const created = await eventsApi.create({
         name: form.name,
         description: form.description,
@@ -58,6 +60,7 @@ export default function CreateEventRequestPage() {
         tags: form.tags.split(',').map(t => t.trim()).filter(Boolean),
         featured: false,
         location: form.location,
+        city: (locObj?.city || '').toString() || undefined,
         approval_status: 'pending',
         submission_source: 'user'
       })
@@ -114,6 +117,46 @@ export default function CreateEventRequestPage() {
             <div>
               <Label htmlFor="venue">Venue</Label>
               <Input id="venue" value={form.venue} onChange={e => setForm({ ...form, venue: e.target.value })} required />
+            </div>
+            <div>
+              <Label htmlFor="city">City</Label>
+              {(() => {
+                const loc = (() => { try { return JSON.parse(form.location || '{}') } catch { return {} as any } })()
+                const currentCity = (loc?.city || '') as string
+                const isOther = currentCity && !POPULAR_CITIES.includes(currentCity)
+                return (
+                  <div className="space-y-2">
+                    <Select
+                      value={isOther ? 'other' : (currentCity || '')}
+                      onValueChange={(val) => {
+                        const next = { ...(loc || {}), city: val === 'other' ? '' : val }
+                        setForm({ ...form, location: JSON.stringify(next) })
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select city" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Array.from(new Set(POPULAR_CITIES)).map(c => (
+                          <SelectItem key={c} value={c}>{c}</SelectItem>
+                        ))}
+                        <SelectItem value="other">Other…</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {(isOther || !currentCity) && (
+                      <Input
+                        placeholder="Enter city name"
+                        value={currentCity || ''}
+                        onChange={(e) => {
+                          const next = { ...(loc || {}), city: e.target.value }
+                          setForm({ ...form, location: JSON.stringify(next) })
+                        }}
+                        required
+                      />
+                    )}
+                  </div>
+                )
+              })()}
             </div>
             <div>
               <Label htmlFor="price">Ticket Price</Label>

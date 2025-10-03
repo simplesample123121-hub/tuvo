@@ -104,29 +104,24 @@ function RegisterContent() {
   const passwordStrength = getPasswordStrength()
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <div className="mx-auto h-12 w-12 rounded-lg bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-lg">E</span>
+    <div className="min-h-screen flex items-center justify-center bg-background py-0">
+      <div className="w-full max-w-none rounded-none overflow-hidden bg-card h-[100svh]">
+        <div className="grid grid-cols-1 md:grid-cols-2 h-full">
+          {/* Left image */}
+          <div className="relative hidden md:block h-full">
+            <img src="https://images.unsplash.com/photo-1517263904808-5dc91e3e7044?q=80&w=1200&auto=format&fit=crop" alt="Welcome" className="absolute inset-0 h-full w-full object-cover" />
           </div>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900 dark:text-white">
-            Create your account
-          </h2>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            Join us and start booking amazing events
-          </p>
-        </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Register</CardTitle>
-            <CardDescription>
-              Create your account to get started (Supabase Auth)
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Right panel */}
+          <div className="p-6 sm:p-10">
+            <div className="mb-2">
+              <h1 className="text-2xl sm:text-3xl font-bold">Create your account</h1>
+              <p className="text-sm text-muted-foreground mt-2">Join a community of event explorers</p>
+            </div>
+
+            <Card className="border-0 shadow-none">
+              <CardContent className="p-0">
+                <form onSubmit={handleSubmit} className="space-y-6">
               {error && (
                 <Alert variant="destructive">
                   <AlertDescription>{error}</AlertDescription>
@@ -240,9 +235,9 @@ function RegisterContent() {
                   name="terms"
                   type="checkbox"
                   required
-                  className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+                  className="h-3 w-3 scale-50 origin-left text-primary focus:ring-primary border-gray-300 rounded"
                 />
-                <label htmlFor="terms" className="ml-2 block text-sm text-gray-900 dark:text-gray-300">
+                <label htmlFor="terms" className="ml-1 block text-sm text-gray-900 dark:text-gray-300">
                   I agree to the{' '}
                   <Link href="/terms" className="text-primary hover:text-primary/80">
                     Terms of Service
@@ -280,9 +275,11 @@ function RegisterContent() {
                   </Link>
                 </p>
               </div>
-            </form>
-          </CardContent>
-        </Card>
+                </form>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
     </div>
   )
