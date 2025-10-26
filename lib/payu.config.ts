@@ -34,9 +34,9 @@ export const PAYU_CONFIG = {
   baseURL:
     process.env.NEXT_PUBLIC_PAYU_BASE_URL ||
     (resolvedEnv === 'PROD' ? 'https://secure.payu.in' : 'https://test.payu.in'),
-  successURL: `${process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || 'http://localhost:3000'}/payment/success`,
-  failureURL: `${process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || 'http://localhost:3000'}/payment/failure`,
-  cancelURL: `${process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || 'http://localhost:3000'}/payment/failure`
+  successURL: `${process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || 'https://tuvo.in'}/payment/success`,
+  failureURL: `${process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || 'https://tuvo.in'}/payment/failure`,
+  cancelURL: `${process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || 'https://tuvo.in'}/payment/failure`
 }
 
 // Generate a unique transaction ID
@@ -102,8 +102,8 @@ export const createPayUTransaction = async ({
       email: email,
       phone: mobile,
       // Use API callback routes to avoid page route conflicts
-      surl: `${process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || 'http://localhost:3000'}/api/payu/success/${txnid}`,
-      furl: `${process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || 'http://localhost:3000'}/api/payu/failure/${txnid}`,
+      surl: `${process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || 'https://tuvo.in'}/api/payu/success/${txnid}`,
+      furl: `${process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || 'https://tuvo.in'}/api/payu/failure/${txnid}`,
       hash: hash
     }
     // Attach UDFs if SDK type doesn't include them

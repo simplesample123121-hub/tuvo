@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 function resolveBaseUrl(request: NextRequest) {
   const origin = new URL(request.url).origin
   const envBase = process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL
-  return envBase || origin
+  return envBase || 'https://tuvo.in'
 }
 
 export async function POST(request: NextRequest, context: { params: Promise<{ txnid: string }> }) {

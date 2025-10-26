@@ -224,15 +224,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const redirectTo = typeof window !== 'undefined' 
         ? `${window.location.origin}/auth/update-password`
-        : `${process.env.NEXT_PUBLIC_SITE_URL || ''}/auth/update-password`
-      const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo })
-      if (error) throw error
+        : `${process.env.NEXT_PUBLIC_SITE_URL || 'https://tuvo.in'}/auth/update-password`
+      
+      const { error } = await supabase.auth.resetPasswordForEmail(email, { 
+        redirectTo,
+        options: {
+          emailRedirectTo: redirectTo
+        }
+      })
+      
+      if (error) {
+        console.error('Supabase auth error:', error);
+        // Provide more specific error messages
+        if (error.message.includes('rate limit')) {
+          return { 
+            success: false, 
+            message: 'Too many requests. Please wait a few minutes before trying again.' 
+          };
+        } else if (error.message.includes('email')) {
+          return { 
+            success: false, 
+            message: 'Invalid email address or email service is not configured.' 
+          };
+        } else {
+          return { 
+            success: false, 
+            message: 'Email service is temporarily unavailable. Please try again later or contact support.' 
+          };
+        }
+      }
+      
       return { success: true, message: 'Password reset email sent. Check your inbox.' };
     } catch (error: any) {
       console.error('Forgot password error:', error);
       return { 
         success: false, 
-        message: error.message || 'Failed to send reset email' 
+        message: 'An unexpected error occurred. Please try again later or contact support.' 
       };
     }
   };

@@ -39,26 +39,48 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8" style={{backgroundColor: '#f5f6f8'}}>
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Forgot password</CardTitle>
-          <CardDescription>Enter your email to receive a reset link.</CardDescription>
+          <CardDescription>
+            Enter your email address. If an account exists, you'll receive instructions for resetting your password.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
             )}
             {success && (
-              <Alert><AlertDescription>{success}</AlertDescription></Alert>
+              <Alert>
+                <AlertDescription>{success}</AlertDescription>
+              </Alert>
             )}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required />
+              <Input 
+                id="email" 
+                type="email" 
+                value={email} 
+                onChange={e => setEmail(e.target.value)} 
+                required 
+                placeholder="Enter your email address"
+              />
             </div>
-            <div className="flex justify-end">
-              <Button type="submit" disabled={loading}>{loading ? 'Sending…' : 'Send reset link'}</Button>
+            <div className="flex justify-between items-center">
+              <Button 
+                type="button" 
+                variant="ghost" 
+                onClick={() => router.push('/auth/login')}
+              >
+                Back to Login
+              </Button>
+              <Button type="submit" disabled={loading}>
+                {loading ? 'Sending…' : 'Send reset link'}
+              </Button>
             </div>
           </form>
         </CardContent>
